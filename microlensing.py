@@ -13,15 +13,13 @@ BOOTSTRAP_SAMPLES = 10000
 MIN_DATA_POINTS = 30
 TIME_WINDOW = 20
 
-def points_around_peak(data):
-  max_magnitude = max([datum['m'].value for datum in data])
-  peak_time = [datum['t'] for datum in data if datum['m'].value == max_magnitude][0]
-  return [datum for datum in data if abs(datum['t'] - peak_time) < TIME_WINDOW / 2]
+def points_around_peak(event):
+  return [datum for datum in event.data if abs(datum['t'] - event.metadata['Tmax'].value) < TIME_WINDOW / 2]
 
 def part_1():
   event = load_event(YEAR, ID)
 
-  cut_data = points_around_peak(event.data, 10)
+  cut_data = points_around_peak(event)
 
   if (len(cut_data) < MIN_DATA_POINTS):
     print(f"Data has only {len(cut_data)} points, which is less than the minimum of {MIN_DATA_POINTS}")
@@ -66,7 +64,7 @@ if __name__ == '__main__':
 
   elif command == 'max_points':
     event = load_event(YEAR, ID)
-    points = points_around_peak(event.data)
+    points = points_around_peak(event)
     print(f"Number of points around peak: {len(points)}")
     tabulated_points = [[point['t'], point['m']] for point in points]
     print(tabulate(tabulated_points, headers=['Time', 'Magnitude']))
@@ -78,7 +76,7 @@ if __name__ == '__main__':
       try:
         print('.', end='', flush=True)
         event = load_event(YEAR, f'blg-{str(i).zfill(4)}')
-        points = points_around_peak(event.data)
+        points = points_around_peak(event)
         if len(points) > MIN_DATA_POINTS:
           events.append({ 'id': f'blg-{str(i).zfill(4)}', 'points': len(points) })
       except:
