@@ -31,3 +31,9 @@ class Event:
     metadata_table = soup.find_all('table')[2]
     metadata_lines = [line.split() for line in metadata_table.text.split('\n') if line != '' and line[0] != '(']
     self.metadata = { line[0]: Value(float(line[1]), float(line[3])) for line in metadata_lines }
+
+  def __str__(self):
+    if (not self.metadata):
+      self.download_metadata()
+
+    return f"{self.year} {self.id}" + '\n\n' + '\n'.join([key + ":\t"  + str(value) for key, value in self.metadata.items()])
