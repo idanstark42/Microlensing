@@ -21,7 +21,3 @@ def plot_histogram_and_gaussians (samples, values, name):
     plt.plot(x, y)
   plt.title(name)
   plt.show()
-
-
-if __name__ == '__main__':
-  plot_histogram_and_gaussians([1, 2, 3, 4, 5, 3, 4, 2, 3, 2, 4, 3, 3], [Value(3, 1)], 'test')
