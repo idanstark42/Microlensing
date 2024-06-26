@@ -5,7 +5,7 @@ from src.regression import fit_parabola
 from src.bootstraping import bootstrap
 from src.plotting import plot_event, plot_data_and_parabola, plot_histogram_and_gaussians
 from src.ogle import Event
-from src.utils import I
+from src.utils import Value, I
 
 YEAR = '2019'
 ID = 'blg-0171'
@@ -22,28 +22,41 @@ def part_1():
     print(f'Data has only {len(data)} points, which is less than the minimum of {MIN_DATA_POINTS}. Exiting.')
     sys.exit(1)
 
-  print('1. Fitting parabola with all points')
-  prediction = fit_parabola(data)
   print()
-  print(f"χ²:\t{prediction['chi2']}")
-  tau_n_sigma = prediction['tau'].n_sigma(event.metadata['tau'])
-  umin_n_sigma = prediction['umin'].n_sigma(event.metadata['umin'])
-  tmax_n_sigma = prediction['Tmax'].n_sigma(event.metadata['Tmax'])
-  plot_data_and_parabola(data, prediction)
+  print('1. Fitting parabola with all points')
+  parabola_prediction = fit_parabola(data)
+  print(f"χ²:\t{parabola_prediction['chi2']}")
+  plot_data_and_parabola(data, parabola_prediction)
 
   print(tabulate([
-    ['tau', prediction['tau'], event.metadata['tau'], tau_n_sigma],
-    ['umin', prediction['umin'], event.metadata['umin'], umin_n_sigma],
-    ['Tmax', prediction['Tmax'], event.metadata['Tmax'], tmax_n_sigma]
+    ['tau', parabola_prediction['tau'], event.metadata['tau'], parabola_prediction['tau'].n_sigma(event.metadata['tau'])],
+    ['umin', parabola_prediction['umin'], event.metadata['umin'], parabola_prediction['umin'].n_sigma(event.metadata['umin'])],
+    ['Tmax', parabola_prediction['Tmax'], event.metadata['Tmax'], parabola_prediction['Tmax'].n_sigma(event.metadata['Tmax'])]
   ], headers=['Parameter', 'Fit', 'OGLE', 'N Sigma']))
 
+  print()
   print('2. Bootstrapping')
   bootstrap_predictions = bootstrap(data, fit_parabola, BOOTSTRAP_SAMPLES)
 
-  plot_histogram_and_gaussians([prediction['tau'].value for prediction in bootstrap_predictions], 'tau')
-  plot_histogram_and_gaussians([prediction['umin'].value for prediction in bootstrap_predictions], 'umin')
-  plot_histogram_and_gaussians([prediction['Tmax'].value for prediction in bootstrap_predictions], 'Tmax')
-  print('done')
+  histogram_predictions = {
+    'tau': Value(np.mean([parabola_prediction['tau'].value for parabola_prediction in bootstrap_predictions]), np.std([parabola_prediction['tau'].value for parabola_prediction in bootstrap_predictions])),
+    'umin': Value(np.mean([parabola_prediction['umin'].value for parabola_prediction in bootstrap_predictions]), np.std([parabola_prediction['umin'].value for parabola_prediction in bootstrap_predictions])),
+    'Tmax': Value(np.mean([parabola_prediction['Tmax'].value for parabola_prediction in bootstrap_predictions]), np.std([parabola_prediction['Tmax'].value for parabola_prediction in bootstrap_predictions]))
+  }
+
+  print(tabulate([
+    ['tau', histogram_predictions['tau'], event.metadata['tau'], histogram_predictions['tau'].n_sigma(event.metadata['tau'])],
+    ['umin', histogram_predictions['umin'], event.metadata['umin'], histogram_predictions['umin'].n_sigma(event.metadata['umin'])],
+    ['Tmax', histogram_predictions['Tmax'], event.metadata['Tmax'], histogram_predictions['Tmax'].n_sigma(event.metadata['Tmax'])]
+  ], headers=['Parameter', 'Fit', 'OGLE', 'N Sigma']))
+  
+
+  plot_histogram_and_gaussians([parabola_prediction['tau'].value for parabola_prediction in bootstrap_predictions], 'tau')
+  plot_histogram_and_gaussians([parabola_prediction['umin'].value for parabola_prediction in bootstrap_predictions], 'umin')
+  plot_histogram_and_gaussians([parabola_prediction['Tmax'].value for parabola_prediction in bootstrap_predictions], 'Tmax')
+
+  print()
+  print('Done')
 
 def part_2():
   print('not implemented yet')

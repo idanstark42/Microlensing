@@ -6,10 +6,17 @@ class Value:
     self.error = error
 
   def __str__(self):
-    # display to 2 decimal places of error
-    err = "{self.error:.2f}"
-    number_of_decimal_places = len(err.split(".")[1])
-    return f"{self.value:.{number_of_decimal_places}f} ± {self.error:.{number_of_decimal_places}f}"
+    # display to last 2 significant figures of error
+    if ('.' not in str(self.error)):
+      return f"{self.value} ± {self.error}"
+    if (self.error == 0):
+      return str(self.value)
+    round_sig = lambda x, sig: round(x, sig - int(np.floor(np.log10(abs(x)))) - 1)
+    error_str = '{:.2e}'.format(self.error)
+    significant_digits = len(error_str.split('e')[0].replace('.', '').rstrip('0'))
+    rounded_error = round_sig(self.error, significant_digits)
+    rounded_value = round(self.value, significant_digits - int(np.floor(np.log10(abs(self.error)))) - 1)
+    return f"{rounded_value} ± {rounded_error}"
   
   def __repr__(self):
     return f"Value({self.value}, {self.error})"
