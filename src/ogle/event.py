@@ -11,15 +11,19 @@ class Event:
   def data_url(self):
     return f"https://www.astrouw.edu.pl/ogle/ogle4/ews/{self.year}/{self.id}/phot.dat"
   
-  def image_url(self):
+  def large_image_url(self):
+    return f"https://www.astrouw.edu.pl/ogle/ogle4/ews/{self.year}/{self.id}/lcurve.gif"
+  
+  def small_image_url(self):
     return f"https://www.astrouw.edu.pl/ogle/ogle4/ews/{self.year}/{self.id}/lcurve_s.gif"
   
   def download_data(self):
     data_str = requests.get(self.data_url()).text
     self.data = [{ 't': float(raw[0]), 'm': Value(float(raw[1]), (raw[2])) } for raw in [line.split() for line in data_str.split('\n') if len(line) > 0]]
   
-  def download_image(self):
-    self.image = requests.get(self.image_url()).content
+  def download_images(self):
+    self.large_image = requests.get(self.large_image_url()).content
+    self.small_image = requests.get(self.small_image_url()).content
 
   def download_metadata(self):
     # scrape the metadata from the event page

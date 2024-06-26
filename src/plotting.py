@@ -15,7 +15,6 @@ def plot_data_and_parabola(cut_data_time, cut_data_int, cut_data_int_err, predic
     plt.ylabel('I magnitude')
     plt.show()
 
-
 def plot_histogram_and_gaussians(samples, value, value_err, name):
     counts, bins, _ = plt.hist(samples, bins=BINS, density=True)
 
@@ -43,7 +42,6 @@ def plot_histogram_and_gaussians(samples, value, value_err, name):
     plt.show()
 
     print(f"{name} (Value(hist)-Value(pred))/Value(hist) = {np.abs(value - bin_midpoint) / bin_midpoint}")
-
 
 if __name__ == '__main__':
     plot_histogram_and_gaussians([1, 2, 3, 4, 5, 3, 4, 2, 3, 2, 4, 3, 3], [Value(3, 1)], 'test')
