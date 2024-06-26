@@ -4,44 +4,39 @@ from .utils import Value
 
 BINS = 50
 
+def plot_event(event):
+  time = [point['t'] for point in event.data]
+  I = [point['I'].value for point in event.data]
+  I_err = [point['I'].error for point in event.data]
 
-def plot_data_and_parabola(cut_data_time, cut_data_int, cut_data_int_err, predication):
-    plt.scatter(cut_data_time, cut_data_int, label="Data")
-    plt.errorbar(cut_data_time, cut_data_int, yerr=cut_data_int_err, fmt='o')
-    x = np.linspace(min(cut_data_time), max(cut_data_time), 100)
-    y = predication['a2'] * (x ** 2) + predication['a1'] * x + predication['a0']
-    plt.plot(x, y, label="Fitted Parabola")
-    plt.xlabel('t[sec]')
-    plt.ylabel('I magnitude')
-    plt.show()
+  plt.scatter(time, I)
+  plt.errorbar(time, I, yerr=I_err, fmt='o')
+  plt.title(f"event {event.year}/{event.id}")
+  plt.xlabel('t[sec]')
+  plt.ylabel('I/I0')
+  plt.show()
 
-def plot_histogram_and_gaussians(samples, value, value_err, name):
-    counts, bins, _ = plt.hist(samples, bins=BINS, density=True)
+def plot_data_and_parabola(data, predication):
+  time = [point['t'] for point in data]
+  I = [point['I'].value for point in data]
+  I_err = [point['I'].error for point in data]
+  plt.scatter(time, I, label="Data")
+  plt.errorbar(time, I, yerr=I_err, fmt='o')
+  x = np.linspace(min(time), max(time), 100)
+  y = predication['a2'].value * (x ** 2) + predication['a1'].value * x + predication['a0'].value
+  plt.plot(x, y, label="Fitted Parabola")
+  plt.xlabel('t[sec]')
+  plt.ylabel('I/I0')
+  plt.show()
 
-    mean = np.average(bins, weights=np.append(counts, 0))
-    variance = np.average((bins - mean) ** 2, weights=np.append(counts, 0))
-    std = np.sqrt(variance)
-
-    bin_midpoint = bins[np.argmax(counts)]
-
-    x1 = np.linspace(min(samples), max(samples), 100)
-    y1 = max(counts) * np.exp(- (x1 - value) ** 2 / (2 * std ** 2))
-
-    x2 = bins
-    y2 = max(counts) * np.exp(- (bins - value) ** 2 / (2 * std ** 2))
-
-    plt.figure(1)
-    plt.plot(x1, y1)
-    plt.title(name)
-
-    plt.figure(2)
-    plt.scatter(x2, y2-np.append(counts, 0), s=10, label='Residuals')
-    plt.axhline(y=0, color='r', linestyle='--', label='y=0')
-    plt.title(f"{name}: Residuals")
-    plt.legend()
-    plt.show()
-
-    print(f"{name} (Value(hist)-Value(pred))/Value(hist) = {np.abs(value - bin_midpoint) / bin_midpoint}")
-
-if __name__ == '__main__':
-    plot_histogram_and_gaussians([1, 2, 3, 4, 5, 3, 4, 2, 3, 2, 4, 3, 3], [Value(3, 1)], 'test')
+def plot_histogram_and_gaussians(samples, name):
+  plt.hist(samples, bins=BINS, density=True, alpha=0.6)
+  mean = np.mean(samples)
+  std = np.std(samples)
+  x = np.linspace(min(samples), max(samples), 100)
+  y = 1 / (std * np.sqrt(2 * np.pi)) * np.exp(-0.5 * ((x - mean) / std) ** 2)
+  plt.plot(x, y, label="Gaussian")
+  plt.title(f"{name} histogram")
+  plt.xlabel(name)
+  plt.ylabel('# of samples')
+  plt.show()

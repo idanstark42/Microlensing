@@ -1,29 +1,24 @@
 import requests
 from bs4 import BeautifulSoup
 
-from src.utils import Value
+from src.utils import Value, I
 
 class Event:
   def __init__(self, year, id):
     self.year = year
     self.id = id
 
-  def data_url(self):
-    return f"https://www.astrouw.edu.pl/ogle/ogle4/ews/{self.year}/{self.id}/phot.dat"
-  
-  def large_image_url(self):
-    return f"https://www.astrouw.edu.pl/ogle/ogle4/ews/{self.year}/{self.id}/lcurve.gif"
-  
-  def small_image_url(self):
-    return f"https://www.astrouw.edu.pl/ogle/ogle4/ews/{self.year}/{self.id}/lcurve_s.gif"
-  
+    self.download_metadata()
+    self.download_images()
+    self.download_data()
+
   def download_data(self):
-    data_str = requests.get(self.data_url()).text
-    self.data = [{ 't': float(raw[0]), 'm': Value(float(raw[1]), (raw[2])) } for raw in [line.split() for line in data_str.split('\n') if len(line) > 0]]
+    data_str = requests.get(f"https://www.astrouw.edu.pl/ogle/ogle4/ews/{self.year}/{self.id}/phot.dat").text
+    self.data = [{ 't': float(raw[0]), 'I': I(Value(float(raw[1]), float(raw[2])), self.metadata['I0']) } for raw in [line.split() for line in data_str.split('\n') if len(line) > 0]]
   
   def download_images(self):
-    self.large_image = requests.get(self.large_image_url()).content
-    self.small_image = requests.get(self.small_image_url()).content
+    self.large_image = requests.get(f"https://www.astrouw.edu.pl/ogle/ogle4/ews/{self.year}/{self.id}/lcurve.gif").content
+    self.small_image = requests.get(f"https://www.astrouw.edu.pl/ogle/ogle4/ews/{self.year}/{self.id}/lcurve_s.gif").content
 
   def download_metadata(self):
     # scrape the metadata from the event page
@@ -37,7 +32,7 @@ class Event:
     self.metadata = { line[0]: Value(float(line[1]), float(line[3])) for line in metadata_lines }
 
   def __str__(self):
-    if (not self.metadata):
-      self.download_metadata()
-
     return f"{self.year} {self.id}" + '\n\n' + '\n'.join([key + ":\t"  + str(value) for key, value in self.metadata.items()])
+
+  def points_around_peak (self, time_window, max_points = 30):
+    return [datum for datum in self.data if abs(datum['t'] - self.metadata['Tmax'].value) < time_window / 2][:max_points]
