@@ -8,7 +8,7 @@ from src.ogle import Event
 from src.utils import Value, I
 
 YEAR = '2019'
-ID = 'blg-0171'
+ID = 'blg-0027'
 BOOTSTRAP_SAMPLES = 10000
 MIN_DATA_POINTS = 20
 TIME_WINDOW = 7
@@ -49,7 +49,14 @@ def part_1():
     ['umin', histogram_predictions['umin'], event.metadata['umin'], histogram_predictions['umin'].n_sigma(event.metadata['umin'])],
     ['Tmax', histogram_predictions['Tmax'], event.metadata['Tmax'], histogram_predictions['Tmax'].n_sigma(event.metadata['Tmax'])]
   ], headers=['Parameter', 'Fit', 'OGLE', 'N Sigma']))
-  
+
+  print()
+  print('3. Bootstrap and parabola comparison')
+  print(tabulate([
+    ['tau', parabola_prediction['tau'], histogram_predictions['tau'], abs(parabola_prediction['tau'].value - histogram_predictions['tau'].value) / histogram_predictions['tau'].value],
+    ['umin', parabola_prediction['umin'], histogram_predictions['umin'], abs(parabola_prediction['umin'].value - histogram_predictions['umin'].value) / histogram_predictions['umin'].value],
+    ['Tmax', parabola_prediction['Tmax'], histogram_predictions['Tmax'], abs(parabola_prediction['Tmax'].value - histogram_predictions['Tmax'].value) / histogram_predictions['Tmax'].value]
+  ], headers=['Parameter', 'Parabola', 'Histogram', 'Difference']))
 
   plot_histogram_and_gaussians([parabola_prediction['tau'].value for parabola_prediction in bootstrap_predictions], 'tau')
   plot_histogram_and_gaussians([parabola_prediction['umin'].value for parabola_prediction in bootstrap_predictions], 'umin')
@@ -97,7 +104,7 @@ if __name__ == '__main__':
     print()
     print('sorting...')
     events = sorted(events, key=lambda event: event['points'], reverse=True)
-    print(tabulate(events))
+    print(tabulate(events, headers='keys'))
 
   else:
     print('Invalid command')

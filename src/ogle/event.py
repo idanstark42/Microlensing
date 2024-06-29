@@ -12,6 +12,8 @@ class Event:
     self.download_images()
     self.download_data()
 
+    self.normalize_time()
+
   def download_data(self):
     data_str = requests.get(f"https://www.astrouw.edu.pl/ogle/ogle4/ews/{self.year}/{self.id}/phot.dat").text
     self.data = [{ 't': float(raw[0]), 'I': I(Value(float(raw[1]), float(raw[2])), self.metadata['I0']) } for raw in [line.split() for line in data_str.split('\n') if len(line) > 0]]
@@ -30,6 +32,13 @@ class Event:
     metadata_table = soup.find_all('table')[2]
     metadata_lines = [line.split() for line in metadata_table.text.split('\n') if line != '' and line[0] != '(']
     self.metadata = { line[0]: Value(float(line[1]), float(line[3])) for line in metadata_lines }
+
+  def normalize_time(self):
+    self.time_shift = min([datum['t'] for datum in self.data])
+    for datum in self.data:
+      datum['t'] -= self.time_shift
+
+    self.metadata['Tmax'].value -= self.time_shift
 
   def __str__(self):
     return f"{self.year} {self.id}" + '\n\n' + '\n'.join([key + ":\t"  + str(value) for key, value in self.metadata.items()])
