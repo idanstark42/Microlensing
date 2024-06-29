@@ -2,17 +2,17 @@ import numpy as np
 from numpy.linalg import LinAlgError
 from src.utils import Value, u
 
-def fit_parabola(data, degree=2):
+def fit_polynomial(data, degree=2):
   time = np.array([point['t'] for point in data])
   I = np.array([point['I'].value for point in data])
   I_err = np.array([point['I'].error for point in data])
 
   weights = 1.0 / I_err ** 2
   coefficients, residuals, rank, singular_values, rcond = np.polyfit(time, I, degree, w=weights, full=True)
-  parabolic = np.poly1d(coefficients)(time)
+  fit = np.poly1d(coefficients)(time)
 
   dof = len(time) - (degree + 1)
-  residuals = I - parabolic
+  residuals = I - fit
   chi2_red = np.sum((residuals / I_err) ** 2) / dof
 
   coefficients_errs = calc_coefficient_errors(residuals, time, degree)

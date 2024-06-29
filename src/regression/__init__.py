@@ -1,1 +1,2 @@
-from .parabola import fit_parabola
+from .linear import fit_polynomial
+from .non_linear import fit_non_linear

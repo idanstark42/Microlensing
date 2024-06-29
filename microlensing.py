@@ -1,7 +1,7 @@
 import sys
 from tabulate import tabulate
 import numpy as np
-from src.regression import fit_parabola
+from src.regression import fit_polynomial, fit_non_linear
 from src.bootstraping import bootstrap
 from src.plotting import plot_event, plot_data_and_parabola, plot_histogram_and_gaussians
 from src.ogle import Event
@@ -24,9 +24,9 @@ def part_1():
 
   print()
   print('1. Fitting parabola with all points...')
-  parabola_prediction = fit_parabola(data)
+  parabola_prediction = fit_polynomial(data)
   print('2. Bootstrapping...')
-  bootstrap_predictions = bootstrap(data, fit_parabola, BOOTSTRAP_SAMPLES)
+  bootstrap_predictions = bootstrap(data, fit_polynomial, BOOTSTRAP_SAMPLES)
 
   histogram_predictions = {
     'tau': Value(np.mean([parabola_prediction['tau'].value for parabola_prediction in bootstrap_predictions]), np.std([parabola_prediction['tau'].value for parabola_prediction in bootstrap_predictions])),
@@ -49,7 +49,19 @@ def part_1():
   plot_histogram_and_gaussians([parabola_prediction['Tmax'].value for parabola_prediction in bootstrap_predictions], 'Tmax')
 
 def part_2():
-  print('not implemented yet')
+  print('--- calulating non-linear fit ---')
+  event = Event(YEAR, ID)
+  data = event.points_around_peak(TIME_WINDOW)
+
+  if len(data) < MIN_DATA_POINTS:
+    print(f'Data has only {len(data)} points, which is less than the minimum of {MIN_DATA_POINTS}. Exiting.')
+    sys.exit(1)
+
+  print()
+  print('1. Fitting parabola with all points...')
+  parabola_prediction = fit_polynomial(data)
+
+  print('2. calculating non-linear fit')
 
 def part_3():
   print('not implemented yet')
