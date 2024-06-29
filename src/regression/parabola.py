@@ -39,6 +39,7 @@ def calc_tau(a0, a1, a2):
 def calc_umin(a0, a1, a2, t_max):
   I_max = a2.value * t_max.value ** 2 + a1.value * t_max.value + a0.value
   I_max_error = (((t_max.value ** 2) * a2.error) ** 2 + (t_max.value * a1.error) ** 2 + a0.error ** 2 + ((2 * a2.value * t_max.value + a1.value) * t_max.error) ** 2) ** 0.5
+  print(I_max, I_max_error)
   return u(Value(I_max, I_max_error))
 
 def calc_coefficient_errors(residuals, time, degree):

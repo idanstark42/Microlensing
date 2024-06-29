@@ -34,33 +34,33 @@ def part_1():
     ['Tmax', parabola_prediction['Tmax'], event.metadata['Tmax'], parabola_prediction['Tmax'].n_sigma(event.metadata['Tmax'])]
   ], headers=['Parameter', 'Fit', 'OGLE', 'N Sigma']))
 
-  print()
-  print('2. Bootstrapping')
-  bootstrap_predictions = bootstrap(data, fit_parabola, BOOTSTRAP_SAMPLES)
+  # print()
+  # print('2. Bootstrapping')
+  # bootstrap_predictions = bootstrap(data, fit_parabola, BOOTSTRAP_SAMPLES)
 
-  histogram_predictions = {
-    'tau': Value(np.mean([parabola_prediction['tau'].value for parabola_prediction in bootstrap_predictions]), np.std([parabola_prediction['tau'].value for parabola_prediction in bootstrap_predictions])),
-    'umin': Value(np.mean([parabola_prediction['umin'].value for parabola_prediction in bootstrap_predictions]), np.std([parabola_prediction['umin'].value for parabola_prediction in bootstrap_predictions])),
-    'Tmax': Value(np.mean([parabola_prediction['Tmax'].value for parabola_prediction in bootstrap_predictions]), np.std([parabola_prediction['Tmax'].value for parabola_prediction in bootstrap_predictions]))
-  }
+  # histogram_predictions = {
+  #   'tau': Value(np.mean([parabola_prediction['tau'].value for parabola_prediction in bootstrap_predictions]), np.std([parabola_prediction['tau'].value for parabola_prediction in bootstrap_predictions])),
+  #   'umin': Value(np.mean([parabola_prediction['umin'].value for parabola_prediction in bootstrap_predictions]), np.std([parabola_prediction['umin'].value for parabola_prediction in bootstrap_predictions])),
+  #   'Tmax': Value(np.mean([parabola_prediction['Tmax'].value for parabola_prediction in bootstrap_predictions]), np.std([parabola_prediction['Tmax'].value for parabola_prediction in bootstrap_predictions]))
+  # }
 
-  print(tabulate([
-    ['tau', histogram_predictions['tau'], event.metadata['tau'], histogram_predictions['tau'].n_sigma(event.metadata['tau'])],
-    ['umin', histogram_predictions['umin'], event.metadata['umin'], histogram_predictions['umin'].n_sigma(event.metadata['umin'])],
-    ['Tmax', histogram_predictions['Tmax'], event.metadata['Tmax'], histogram_predictions['Tmax'].n_sigma(event.metadata['Tmax'])]
-  ], headers=['Parameter', 'Fit', 'OGLE', 'N Sigma']))
+  # print(tabulate([
+  #   ['tau', histogram_predictions['tau'], event.metadata['tau'], histogram_predictions['tau'].n_sigma(event.metadata['tau'])],
+  #   ['umin', histogram_predictions['umin'], event.metadata['umin'], histogram_predictions['umin'].n_sigma(event.metadata['umin'])],
+  #   ['Tmax', histogram_predictions['Tmax'], event.metadata['Tmax'], histogram_predictions['Tmax'].n_sigma(event.metadata['Tmax'])]
+  # ], headers=['Parameter', 'Fit', 'OGLE', 'N Sigma']))
 
-  print()
-  print('3. Bootstrap and parabola comparison')
-  print(tabulate([
-    ['tau', parabola_prediction['tau'], histogram_predictions['tau'], abs(parabola_prediction['tau'].value - histogram_predictions['tau'].value) / histogram_predictions['tau'].value],
-    ['umin', parabola_prediction['umin'], histogram_predictions['umin'], abs(parabola_prediction['umin'].value - histogram_predictions['umin'].value) / histogram_predictions['umin'].value],
-    ['Tmax', parabola_prediction['Tmax'], histogram_predictions['Tmax'], abs(parabola_prediction['Tmax'].value - histogram_predictions['Tmax'].value) / histogram_predictions['Tmax'].value]
-  ], headers=['Parameter', 'Parabola', 'Histogram', 'Difference']))
+  # print()
+  # print('3. Bootstrap and parabola comparison')
+  # print(tabulate([
+  #   ['tau', parabola_prediction['tau'], histogram_predictions['tau'], abs(parabola_prediction['tau'].value - histogram_predictions['tau'].value) / histogram_predictions['tau'].value],
+  #   ['umin', parabola_prediction['umin'], histogram_predictions['umin'], abs(parabola_prediction['umin'].value - histogram_predictions['umin'].value) / histogram_predictions['umin'].value],
+  #   ['Tmax', parabola_prediction['Tmax'], histogram_predictions['Tmax'], abs(parabola_prediction['Tmax'].value - histogram_predictions['Tmax'].value) / histogram_predictions['Tmax'].value]
+  # ], headers=['Parameter', 'Parabola', 'Histogram', 'Difference']))
 
-  plot_histogram_and_gaussians([parabola_prediction['tau'].value for parabola_prediction in bootstrap_predictions], 'tau')
-  plot_histogram_and_gaussians([parabola_prediction['umin'].value for parabola_prediction in bootstrap_predictions], 'umin')
-  plot_histogram_and_gaussians([parabola_prediction['Tmax'].value for parabola_prediction in bootstrap_predictions], 'Tmax')
+  # plot_histogram_and_gaussians([parabola_prediction['tau'].value for parabola_prediction in bootstrap_predictions], 'tau')
+  # plot_histogram_and_gaussians([parabola_prediction['umin'].value for parabola_prediction in bootstrap_predictions], 'umin')
+  # plot_histogram_and_gaussians([parabola_prediction['Tmax'].value for parabola_prediction in bootstrap_predictions], 'Tmax')
 
   print()
   print('Done')
