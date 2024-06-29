@@ -1,4 +1,5 @@
 import numpy as np
+from decimal import Decimal
 
 class Value:
   def __init__(self, value, error):
@@ -6,23 +7,22 @@ class Value:
     self.error = error
 
   def __str__(self):
-    # display to last 2 significant figures of error
-    if ('.' not in str(self.error)):
-      return f"{self.value} ± {self.error}"
-    if (self.error == 0):
-      return str(self.value)
-    round_sig = lambda x, sig: round(x, sig - int(np.floor(np.log10(abs(x)))) - 1)
-    error_str = '{:.2e}'.format(self.error)
-    significant_digits = len(error_str.split('e')[0].replace('.', '').rstrip('0'))
-    rounded_error = round_sig(self.error, significant_digits)
-    rounded_value = round(self.value, significant_digits - int(np.floor(np.log10(abs(self.error)))) - 1)
+    rounded_error = float(f"{Decimal(f'{self.error:.2g}'):f}")
+    split_error = str(rounded_error).split(".")
+    decimal_places = len(split_error[1]) if len(split_error) == 2 else len(split_error[0].strip("0")) - len(split_error[0])
+    rounded_value = round_to(self.value, decimal_places)
     return f"{rounded_value} ± {rounded_error}"
   
   def __repr__(self):
     return f"Value({self.value}, {self.error})"
   
   def n_sigma (self, other):
-    return (self.value - other.value) / np.sqrt(self.error ** 2 + other.error ** 2)
+    return abs(self.value - other.value) / np.sqrt(self.error ** 2 + other.error ** 2)
+
+def round_to(value, sig_figs):
+  if sig_figs == 0:
+    return int(value)
+  return round((value * 10 ** sig_figs)) / 10 ** sig_figs
 
 # theoretical formulas
 
