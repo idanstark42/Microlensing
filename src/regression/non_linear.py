@@ -3,16 +3,19 @@ from iminuit import Minuit
 from iminuit.cost import LeastSquares
 
 
-def generate_chi_squared_nd_map(center, width, resolution, data, fit, dof):
-    values = generate_values_nd(center, width, resolution)
+# dimensions: dictionary of dimensions, each dimension is a tuple of (center, width, resolution), the key is the name
+# of the variable
+
+def generate_chi_squared_nd_map(dimensions, data, fit, dof):
+    values = generate_values_nd(dimensions)
     it = np.nditer(values, flags=['multi_index', 'refs_ok'])
     for _ in it:
         values[it.multi_index]['chi2'] = chi_squared_reduced(data, fit, dof)
+    return values
 
 
 def chi_squared_reduced(data, fit, dof):
-    residuals = [point['I'].value - fit(point['t']) for point in data]
-    return sum([(residuals[i] / point['I'].error) ** 2 for i, point in enumerate(data)]) / dof
+    return sum([(point['I'].value - fit(point['t']) / point['I'].error) ** 2 for i, point in enumerate(data)]) / dof
 
 
 def generate_values_nd(dimensions):
@@ -37,5 +40,9 @@ def fit_gaussian(bin_midpoints, bin_counts, error):
     least_squares = LeastSquares(bin_midpoints, bin_counts, 1, gaussian)
     m = Minuit(least_squares, amplitude=0.7, mean=np.mean(bin_midpoints), sigma=np.std(bin_midpoints))
     m.migrad()
-    print(f"χ²:\t{m.fval/(len(bin_midpoints)-3)}")
+    print(f"χ²:\t{m.fval / (len(bin_midpoints) - 3)}")
     return m.values["amplitude"], m.values["mean"], m.values["sigma"]
+
+
+def generate_values_1d(center, width, resolution):
+    return np.linspace(center - width / 2, center + width / 2, resolution)
