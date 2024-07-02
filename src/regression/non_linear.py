@@ -1,14 +1,16 @@
 import numpy as np
 
-def generate_chi_squared_nd_map (center, width, resolution, data, fit, dof):
-  values = generate_values_nd(center, width, resolution)
+# dimensions: dictionary of dimensions, each dimension is a tuple of (center, width, resolution), the key is the name of the variable
+
+def generate_chi_squared_nd_map (dimensions, data, fit, dof):
+  values = generate_values_nd(dimensions)
   it = np.nditer(values, flags=['multi_index', 'refs_ok'])
   for _ in it:
     values[it.multi_index]['chi2'] = chi_squared_reduced(data, fit, dof)
+  return values
 
 def chi_squared_reduced (data, fit, dof):
-  residuals = [point['I'].value - fit(point['t']) for point in data]
-  return sum([(residuals[i] / point['I'].error) ** 2 for i, point in enumerate(data)]) / dof
+  return sum([(point['I'].value - fit(point['t']) / point['I'].error) ** 2 for i, point in enumerate(data)]) / dof
 
 def generate_values_nd (dimensions):
   vectors = [generate_values_1d(*dimension) for dimension in dimensions.values()]
