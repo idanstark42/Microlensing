@@ -9,7 +9,8 @@ from src.utils import Value, I
 from src.settings import YEAR, ID, BOOTSTRAP_SAMPLES, MIN_DATA_POINTS, TIME_WINDOW
 
 def part_1(graphs=True):
-  print('--- calulating parabolic fit ---')
+  print()
+  print('--- part 1 ---')
   event = Event(YEAR, ID)
   data = event.points_around_peak(TIME_WINDOW)
 
@@ -29,8 +30,8 @@ def part_1(graphs=True):
   gaussians = { field: fit_histogram_gaussian([prediction[field].value for prediction in bootstrap_predictions]) for field in FIELDS }
   gaussian_predictions = { key: Value(gaussians[key][1], gaussians[key][2]) for key in gaussians }
 
-  print()
   print('3. Done')
+  print()
   print(f"χ²:\t{parabola_prediction['chi2']}")
   print(tabulate([[
     field,
