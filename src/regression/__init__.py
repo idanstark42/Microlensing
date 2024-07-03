@@ -1,1 +1,1 @@
-from .linear import fit_polynomial
+import .linear
