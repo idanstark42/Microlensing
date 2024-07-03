@@ -1,7 +1,7 @@
 import sys
 from tabulate import tabulate
 import numpy as np
-from src.regression import fit_polynomial, fit_non_linear
+from src.regression import fit_polynomial
 from src.bootstraping import bootstrap
 from src.plotting import plot_event, plot_data_and_parabola, plot_histogram_and_gaussians
 from src.ogle import Event
