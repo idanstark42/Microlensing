@@ -21,7 +21,6 @@ def part_1(graphs=True):
   print()
   print('1. Fitting parabola with all points...')
   parabola_prediction = fit_polynomial(data)
-  print(parabola_prediction)
   print('2. Bootstrapping...')
   bootstrap_predictions = bootstrap(data, fit_polynomial, BOOTSTRAP_SAMPLES)
 

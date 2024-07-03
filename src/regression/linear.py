@@ -22,7 +22,6 @@ def fit_polynomial(data, degree=2):
   chi2_red = np.sum((residuals / I_err) ** 2) / dof
 
   coefficients_errs = calc_coefficient_errors(residuals, time, degree)
-  print(coefficients_errs)
   a2, a1, a0 = [Value(coefficients[i], coefficients_errs[i]) for i in range(degree + 1)]
 
   tau = calc_tau(a2, a1, a0)
