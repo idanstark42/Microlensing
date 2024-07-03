@@ -43,5 +43,5 @@ class Event:
   def __str__(self):
     return f"{self.year} {self.id}" + '\n\n' + '\n'.join([key + ":\t"  + str(value) for key, value in self.metadata.items()])
 
-  def points_around_peak (self, time_window, max_points = 30):
-    return [datum for datum in self.data if abs(datum['t'] - self.metadata['Tmax'].value) < time_window / 2][:max_points]
+  def points_around_peak (self, time_window):
+    return [datum for datum in self.data if abs(datum['t'] - self.metadata['Tmax'].value) < time_window / 2]

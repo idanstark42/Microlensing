@@ -1,1 +1,1 @@
-from .linear import fit_polynomial, gaussian, fit_gaussian
+from .linear import fit_polynomial, gaussian, fit_histogram_gaussian
