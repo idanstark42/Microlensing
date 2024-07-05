@@ -16,7 +16,7 @@ class Event:
 
   def download_data(self):
     data_str = requests.get(f"https://www.astrouw.edu.pl/ogle/ogle4/ews/{self.year}/{self.id}/phot.dat").text
-    self.data = [{ 't': float(raw[0]), 'I': I(Value(float(raw[1]), float(raw[2])), self.metadata['I0']) } for raw in [line.split() for line in data_str.split('\n') if len(line) > 0]]
+    self.data = [{'t': float(raw[0]), 'I': I(Value(float(raw[1]), float(raw[2])), self.metadata['I0']) } for raw in [line.split() for line in data_str.split('\n') if len(line) > 0]]
   
   def download_images(self):
     self.large_image = requests.get(f"https://www.astrouw.edu.pl/ogle/ogle4/ews/{self.year}/{self.id}/lcurve.gif").content
