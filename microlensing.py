@@ -33,6 +33,7 @@ def part_1(graphs=True):
   print('3. Done')
   print()
   print(f"χ²:\t{parabola_prediction['chi2']}")
+  print(f"a0: {parabola_prediction['a0']}\ta1: {parabola_prediction['a1']}\ta2: {parabola_prediction['a2']}")
   print(tabulate([[
     field,
     event.metadata[field],
@@ -49,7 +50,7 @@ def part_1(graphs=True):
 
   plot_data_and_parabola(data, parabola_prediction)
   for field in FIELDS:
-    plot_histogram_and_gaussian([parabola_prediction[field].value for parabola_prediction in bootstrap_predictions], field, lambda x: gaussian(x, *gaussians[field]), parabola_prediction[field].error)
+    plot_histogram_and_gaussian([parabola_prediction[field].value for parabola_prediction in bootstrap_predictions], field, lambda x: gaussian(x, *gaussians[field][:3]))
 
 def part_2():
   print('--- calulating non-linear fit ---')

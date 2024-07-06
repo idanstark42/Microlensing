@@ -24,20 +24,18 @@ def fit_polynomial(data, degree=2):
   coefficients_errs = calc_coefficient_errors(residuals, time, degree)
   a2, a1, a0 = [Value(coefficients[i], coefficients_errs[i]) for i in range(degree + 1)]
 
-  tau = calc_tau(a2, a1, a0)
   t_max = calc_tmax(a2, a1, a0)
+  tau = calc_tau(a2, a1, a0)
   umin = calc_umin(a2, a1, a0, t_max)
 
   return {'tau': tau, 'Tmax': t_max, 'umin': umin, 'a2': a2, 'a1': a1, 'a0': a0, 'chi2': chi2_red}
-
 
 # helper functions
 
 def calc_tmax(a2, a1, a0):
   t_max = (-1) * a1.value / (2 * a2.value)
-  t_max_error = (((a1.value / (2 * (a2.value ** 2))) * a2.error) ** 2 + ((1 / (2 * a2.value)) * a1.error) ** 2) ** 0.5
+  t_max_error = abs(t_max) * ((a2.error / a2.value) ** 2 + (a1.error / a1.value) ** 2) ** 0.5
   return Value(t_max, t_max_error)
-
 
 def calc_tau(a2, a1, a0):
   tau = np.sqrt(np.abs((a1.value ** 2 - 4 * a2.value * a0.value) / 2)) / abs(a2.value)
@@ -54,8 +52,7 @@ def calc_coefficient_errors(residuals, time, degree):
   dof = len(time) - (degree + 1)
   s2 = np.sum(residuals ** 2) / dof
   try:
-    cov_matrix = np.linalg.inv(
-      np.dot(np.transpose(np.vander(time, degree + 1)), np.vander(time, degree + 1))) * s2
+    cov_matrix = np.linalg.inv(np.dot(np.transpose(np.vander(time, degree + 1)), np.vander(time, degree + 1))) * s2
     std_errors = np.sqrt(np.diag(cov_matrix))
   except LinAlgError:
     pass
