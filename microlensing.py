@@ -11,7 +11,6 @@ from src.settings import YEAR, ID, BOOTSTRAP_SAMPLES, MIN_DATA_POINTS, TIME_WIND
 
 
 def part_1(graphs=True):
-<<<<<<< HEAD
   print()
   print('--- part 1 ---')
   event = Event(YEAR, ID)
@@ -54,12 +53,10 @@ def part_1(graphs=True):
   plot_data_and_parabola(data, parabola_prediction)
   for field in FIELDS:
     plot_histogram_and_gaussian([parabola_prediction[field].value for parabola_prediction in bootstrap_predictions], field, lambda x: gaussian(x, *gaussians[field][:3]))
-=======
     print()
     print('--- part 1 ---')
     event = Event(YEAR, ID)
     data = event.points_around_peak(TIME_WINDOW)
->>>>>>> 44a4fd2d5627853760f887086440d7cdac777ef8
 
     if len(data) < MIN_DATA_POINTS:
         print(f'Data has only {len(data)} points, which is less than the minimum of {MIN_DATA_POINTS}. Exiting.')
