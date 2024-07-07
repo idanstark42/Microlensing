@@ -54,49 +54,6 @@ def part_1(graphs=True):
   for field in FIELDS:
     plot_histogram_and_gaussian([parabola_prediction[field].value for parabola_prediction in bootstrap_predictions], field, lambda x: gaussian(x, *gaussians[field][:3]))
     print()
-    print('--- part 1 ---')
-    event = Event(YEAR, ID)
-    data = event.points_around_peak(TIME_WINDOW)
-
-    if len(data) < MIN_DATA_POINTS:
-        print(f'Data has only {len(data)} points, which is less than the minimum of {MIN_DATA_POINTS}. Exiting.')
-        sys.exit(1)
-
-    print(f'Found {len(data)} points around the peak. Continuing.')
-    print()
-    print('1. Fitting parabola with all points...')
-    parabola_prediction = fit_polynomial(data)
-    print('2. Bootstrapping...')
-    bootstrap_predictions = bootstrap(data, fit_polynomial, BOOTSTRAP_SAMPLES)
-
-    FIELDS = ['tau', 'umin', 'Tmax']
-
-    gaussians = {field: fit_histogram_gaussian([prediction[field].value for prediction in bootstrap_predictions]) for
-                 field in FIELDS}
-    gaussian_predictions = {key: Value(gaussians[key][1], gaussians[key][2]) for key in gaussians}
-
-    print('3. Done')
-    print()
-    print(f"χ²:\t{parabola_prediction['chi2']}")
-    print(tabulate([[
-        field,
-        event.metadata[field],
-        parabola_prediction[field],
-        gaussian_predictions[field],
-        parabola_prediction[field].n_sigma(event.metadata[field]),
-        abs(parabola_prediction[field].value - gaussian_predictions[field].value) / gaussian_predictions[field].value,
-        gaussians[field][3]
-    ] for field in FIELDS],
-        headers=['Parameter', 'OGLE', 'Parabola', 'Histogram', 'Nsigma', 'Difference', 'Gaussian χ²']))
-
-    if not graphs:
-        return
-
-    plot_data_and_parabola(data, parabola_prediction)
-    for field in FIELDS:
-        plot_histogram_and_gaussian([parabola_prediction[field].value for parabola_prediction in bootstrap_predictions],
-                                    field, lambda x: gaussian(x, *gaussians[field]), parabola_prediction[field].error)
-
 
 def part_2():
     event = Event(YEAR, ID)
