@@ -31,6 +31,7 @@ def fit_polynomial(data, degree=2):
 
     return {'tau': tau, 'Tmax': t_max, 'umin': umin, 'a2': a2, 'a1': a1, 'a0': a0, 'chi2': chi2_red}
 
+
 # helper functions
 
 def calc_tmax(a2, a1, a0):
@@ -38,17 +39,18 @@ def calc_tmax(a2, a1, a0):
     t_max_error = (((a1.value / (2 * (a2.value ** 2))) * a2.error) ** 2 + ((1 / (2 * a2.value)) * a1.error) ** 2) ** 0.5
     return Value(t_max, t_max_error)
 
+
 def calc_tau(a2, a1, a0):
     tau = np.sqrt(np.abs((a1.value ** 2 - 4 * a2.value * a0.value) / 2)) / abs(a2.value)
     tau_error = (1 / tau) * (((a1.value ** 2 + 4 * a2.value * a0.value) / 4 * a2.value ** 3) * a2.error + (
-                a1.value / a2.value ** 2) * a1.error - (2 / a2.value) * a0.error)
+            a1.value / a2.value ** 2) * a1.error - (2 / a2.value) * a0.error)
     return Value(tau, tau_error)
 
 
 def calc_umin(a2, a1, a0, t_max):
     I_max = a2.value * t_max.value ** 2 + a1.value * t_max.value + a0.value
     I_max_error = (((t_max.value ** 2) * a2.error) ** 2 + (t_max.value * a1.error) ** 2 + a0.error ** 2 + (
-                (2 * a2.value * t_max.value + a1.value) * t_max.error) ** 2) ** 0.5
+            (2 * a2.value * t_max.value + a1.value) * t_max.error) ** 2) ** 0.5
     return u(Value(I_max, I_max_error), t_max)
 
 
@@ -63,6 +65,7 @@ def calc_coefficient_errors(residuals, time, degree):
     except LinAlgError:
         pass
     return [1.3 * (1 / np.power(10, 7)), 0.644, 10 ^ 5] if all(np.isnan(std_errors)) else std_errors.tolist()
+
 
 # gaussian
 

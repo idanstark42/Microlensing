@@ -22,11 +22,12 @@ def generate_chi_squared_nd_map(dimensions, data, get_fit, dof):
     min_value = values[min_key]
     print(f"min chi2 = {min_value['chi2']}")
 
-    print("Showing the minimal X2 fit:")
+    print("Showing the minimal X2 fit")
     fit2 = get_fit(min_value['umin'], min_value['Tmax'])
     shifted_fit2 = fit2-min(fit2)
     plt.plot(shifted_fit2)
     plt.plot(np.array([datum['I'].value for datum in data]))
+    plt.show()
     return values
 
 

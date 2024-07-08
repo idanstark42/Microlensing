@@ -59,19 +59,18 @@ def part_2():
     event = Event(YEAR, ID)
     parabolic_data = event.points_around_peak(TIME_WINDOW)
     data = event.data
-    print(f'Found {len(parabolic_data)} points around the peak. Continuing.')
-    print()
-    print('Fitting parabola with all points...')
     parabola_prediction = fit_polynomial(parabolic_data)
     umin_p, tmax_p = parabola_prediction['umin'].value, parabola_prediction['Tmax'].value
+    print(f"Umin: {event.metadata['umin'].value}")
+    print(f"Tmax: {event.metadata['Tmax'].value}")
     t = np.array([datum['t'] for datum in data])
     get_fit = lambda umin, t0: I_t(t, umin, t0 - data[0]['t'], event.metadata['tau'].value, event.metadata['fbl'].value)
     dimensions = {
         "Tmax": (tmax_p, 1.5, 200),
-        "umin": (umin_p, 1.5, 200)
+        "umin": (umin_p, 1.5, 100)
     }
     chi2_map = generate_chi_squared_nd_map(dimensions, data, get_fit, 2)
-    plot_chi_squared_map_gridmap(chi2_map, dimensions)
+    #plot_chi_squared_map_gridmap(chi2_map, dimensions)
     plot_chi_squared_map_contour(chi2_map, dimensions)
 
 
