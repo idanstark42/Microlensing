@@ -66,11 +66,10 @@ def part_2():
     t = np.array([datum['t'] for datum in data])
     get_fit = lambda umin, t0: I_t(t, umin, t0 - data[0]['t'], event.metadata['tau'].value, event.metadata['fbl'].value)
     dimensions = {
-        "Tmax": (tmax_p, 1.5, 200),
-        "umin": (umin_p, 1.5, 100)
+        "Tmax": (tmax_p, 50, 200),
+        "umin": (umin_p, 0.6, 100)
     }
     chi2_map = generate_chi_squared_nd_map(dimensions, data, get_fit, 2)
-    #plot_chi_squared_map_gridmap(chi2_map, dimensions)
     plot_chi_squared_map_contour(chi2_map, dimensions)
 
 
