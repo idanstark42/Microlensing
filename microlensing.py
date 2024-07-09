@@ -3,12 +3,11 @@ from tabulate import tabulate
 from src.regression import fit_polynomial, fit_histogram_gaussian, gaussian, generate_chi_squared_nd_map
 from src.bootstraping import bootstrap
 from src.plotting import plot_chi_squared_map_gridmap, plot_chi_squared_map_contour, plot_event, plot_data_and_parabola, \
-    plot_histogram_and_gaussian
+    plot_histogram_and_gaussian, plot_full_fit
 import numpy as np
 from src.ogle import Event
 from src.utils import Value, I, I_t
 from src.settings import YEAR, ID, BOOTSTRAP_SAMPLES, MIN_DATA_POINTS, TIME_WINDOW
-
 
 def part_1(graphs=True):
   print()
@@ -53,28 +52,43 @@ def part_1(graphs=True):
   plot_data_and_parabola(data, parabola_prediction)
   for field in FIELDS:
     plot_histogram_and_gaussian([parabola_prediction[field].value for parabola_prediction in bootstrap_predictions], field, lambda x: gaussian(x, *gaussians[field][:3]))
-    print()
 
-def part_2():
-    event = Event(YEAR, ID)
-    parabolic_data = event.points_around_peak(TIME_WINDOW)
-    data = event.data
-    parabola_prediction = fit_polynomial(parabolic_data)
-    umin_p, tmax_p = parabola_prediction['umin'].value, parabola_prediction['Tmax'].value
-    print(f"Umin: {event.metadata['umin'].value}")
-    print(f"Tmax: {event.metadata['Tmax'].value}")
-    t = np.array([datum['t'] for datum in data])
-    get_fit = lambda umin, t0: I_t(t, umin, t0 - data[0]['t'], event.metadata['tau'].value, event.metadata['fbl'].value)
-    dimensions = {
-        "Tmax": (tmax_p, 50, 200),
-        "umin": (umin_p, 0.6, 100)
-    }
-    chi2_map = generate_chi_squared_nd_map(dimensions, data, get_fit, 2)
-    plot_chi_squared_map_contour(chi2_map, dimensions)
+def part_2(graphs=True):
+  print()
+  print('--- part 2 ---')
+  event = Event(YEAR, ID)
+  
+  print('expected values: Tmax:', event.metadata['Tmax'], 'umin:', event.metadata['umin'])
+  print('1. Loading parabolic fit...')
+  parabola_prediction = fit_polynomial(event.points_around_peak(TIME_WINDOW))
+  print('parabola fit:', parabola_prediction['a0'], parabola_prediction['a1'], parabola_prediction['a2'])
+  print('Tmax:', parabola_prediction['Tmax'])
+  print('umin:', parabola_prediction['umin'])
 
+  print('2. Generating chi squared map...')
+  data = event.data
+  umin_p, tmax_p = parabola_prediction['umin'].value, parabola_prediction['Tmax'].value
+  get_fit = lambda t, umin, t0: I_t(t, umin, t0, event.metadata['tau'].value, event.metadata['fbl'].value, event.metadata['I*'].value)
+  dimensions = { "umin": (umin_p, 0.6, 100), "Tmax": (tmax_p, 50, 200) }
+  chi2_map, best_values = generate_chi_squared_nd_map(dimensions, data, get_fit, 2)
 
-def part_3():
-    print('not implemented yet')
+  print('3. Done')
+
+  print('Best values:')
+  print('Tmax:', best_values['Tmax'])
+  print('umin:', best_values['umin'])
+  print('tau:', event.metadata['tau'])
+  print('fBL:', event.metadata['fbl'])
+
+  if not graphs:
+    return
+  
+  plot_full_fit(data, best_values["Tmax"], best_values["umin"], get_fit)
+  plot_chi_squared_map_gridmap(chi2_map, dimensions)
+  plot_chi_squared_map_contour(chi2_map, dimensions)
+
+def part_3(graphs=True):
+  print('not implemented yet')
 
 
 if __name__ == '__main__':
@@ -84,10 +98,10 @@ if __name__ == '__main__':
         part_1('--no-graphs' not in sys.argv[2:] if len(sys.argv) > 2 else True)
 
     elif command == 'part2':
-        part_2()
+        part_2('--no-graphs' not in sys.argv[2:] if len(sys.argv) > 2 else True)
 
     elif command == 'part3':
-        part_3()
+        part_3('--no-graphs' not in sys.argv[2:] if len(sys.argv) > 2 else True)
 
     elif command == 'event':
         print(Event(YEAR, ID))
