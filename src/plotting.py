@@ -2,9 +2,7 @@ from matplotlib import pyplot as plt
 import numpy as np
 from scipy.stats import chi2
 
-from src.settings import BINS
-
-PPFS = { 2: [0.6827, 0.9545, 0.9973] }
+from src.settings import BINS, PPFS
 
 def plot_event(event):
   time = [point['t'] for point in event.data]
@@ -58,7 +56,7 @@ def plot_full_fit(data, Tmax, umin, fit):
   time = [point['t'] for point in data]
   I = [point['I'].value for point in data]
   I_err = [point['I'].error for point in data]
-  plt.scatter(time, I, label="Data", s=0.5)
+  plt.scatter(time, I, label="Data", s=1)
   plt.errorbar(time, I, yerr=I_err, fmt='o')
   x = np.linspace(min(time), max(time))
   y = fit(x, umin, Tmax)

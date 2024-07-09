@@ -61,10 +61,7 @@ def part_2(graphs=True):
   print('expected values: Tmax:', event.metadata['Tmax'], 'umin:', event.metadata['umin'])
   print('1. Loading parabolic fit...')
   parabola_prediction = fit_polynomial(event.points_around_peak(TIME_WINDOW))
-  print('parabola fit:', parabola_prediction['a0'], parabola_prediction['a1'], parabola_prediction['a2'])
-  print('Tmax:', parabola_prediction['Tmax'])
-  print('umin:', parabola_prediction['umin'])
-
+  
   print('2. Generating chi squared map...')
   data = event.data
   umin_p, tmax_p = parabola_prediction['umin'].value, parabola_prediction['Tmax'].value
@@ -74,16 +71,19 @@ def part_2(graphs=True):
 
   print('3. Done')
 
-  print('Best values:')
-  print('Tmax:', best_values['Tmax'])
-  print('umin:', best_values['umin'])
-  print('tau:', event.metadata['tau'])
-  print('fBL:', event.metadata['fbl'])
+  print(tabulate([[
+    key,
+    best_values[key],
+    parabola_prediction[key],
+    event.metadata[key],
+    abs(best_values[key].value - event.metadata[key].value) / event.metadata[key].value
+    ] for key in ['Tmax', 'umin']],
+    headers=['Parameter', 'Best', 'Parabola', 'OGLE', 'Difference']))
 
   if not graphs:
     return
   
-  plot_full_fit(data, best_values["Tmax"], best_values["umin"], get_fit)
+  plot_full_fit(data, best_values["Tmax"].value, best_values["umin"].value, get_fit)
   plot_chi_squared_map_gridmap(chi2_map, dimensions)
   plot_chi_squared_map_contour(chi2_map, dimensions)
 

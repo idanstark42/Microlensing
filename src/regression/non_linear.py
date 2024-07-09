@@ -1,6 +1,8 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
+from src.settings import PPFS
+from src.utils import Value
 
 # dimensions: dictionary of dimensions, each dimension is a tuple of (center, width, resolution), the key is the name
 # of the variable
@@ -13,11 +15,26 @@ def generate_chi_squared_nd_map(dimensions, data, get_fit, dof):
     fit = get_fit(time, values[it.multi_index]['umin'], values[it.multi_index]['Tmax'])
     values[it.multi_index]['chi2'] = chi_squared_reduced(data, fit, dof)
 
-  chi2_values = np.array([values[idx]['chi2'] for idx, _ in np.ndenumerate(values)])
-  min_ind = np.argmin(chi2_values)
+  min_ind = np.argmin(np.array([values[idx]['chi2'] for idx, _ in np.ndenumerate(values)]))
   min_key = list(np.ndenumerate(values))[min_ind][0]
+  min_chi2 = values[min_key]['chi2']
 
-  return values, values[min_key]
+  def get_error(key):
+    min_value = values[min_key][key]
+    array_index = [slice(None) for _ in range(len(dimensions))]
+    array_index[list(dimensions.keys()).index(key)] = min_key[list(dimensions.keys()).index(key)]
+    array_index = tuple(array_index)
+    relevant_values = values[array_index]
+    chi2_difference_lower = np.array([abs(abs(value['chi2'] - min_chi2) - PPFS[dof][0]) for value in relevant_values if value[key] < min_value])
+    chi2_difference_upper = np.array([abs(abs(value['chi2'] - min_chi2) - PPFS[dof][0]) for value in relevant_values if value[key] > min_value])
+    lower_index, upper_index = np.argmin(chi2_difference_lower), np.argmin(chi2_difference_upper)
+    error = (abs(min_value - relevant_values[lower_index][key]), abs(min_value - relevant_values[upper_index][key]))
+    return error
+
+  params = { key: Value(values[min_key][key], get_error(key)) for key in dimensions.keys() }
+  params['chi2'] = min_chi2
+
+  return values, params
 
 def chi_squared_reduced(data, fit, dof):
   values = np.array(list(point['I'].value for point in data))
@@ -31,7 +48,7 @@ def generate_values_nd(dimensions):
   combined = np.empty(grids[0].shape, dtype=object)
   it = np.nditer(combined, flags=['multi_index', 'refs_ok'])
   for _ in it:
-    combined[it.multi_index] = {key: grids[i][it.multi_index] for i, key in enumerate(dimensions.keys())}
+    combined[it.multi_index] = { key: grids[i][it.multi_index] for i, key in enumerate(dimensions.keys()) }
   return combined
 
 
