@@ -1,7 +1,6 @@
 from matplotlib import pyplot as plt
 import numpy as np
 from scipy.stats import chi2
-import corner
 from src.settings import BINS, PPFS
 
 
@@ -55,30 +54,30 @@ def plot_histogram_and_gaussian(samples, name, gaussian):
     plt.show()
 
 
-def plot_full_fit(data, Tmax, umin, fit):
+def plot_full_fit(data, fit):
     time = [point['t'] for point in data]
     I = [point['I'].value for point in data]
     I_err = [point['I'].error for point in data]
     plt.scatter(time, I, label="Data", s=1)
     plt.errorbar(time, I, yerr=I_err, fmt='o')
     x = np.linspace(min(time), max(time))
-    y = fit(x, umin, Tmax)
+    y = fit(x)
     plt.plot(x, y, label="Fit")
     plt.show()
 
 
 # chi squared map plotting
 
-def plot_chi_squared_map_gridmap(values, dimensions, ax=None):
+def plot_chi_squared_map_gridmap(values, variable_dimensions, constant_dimensions, ax=None):
     def plot(x, y, z, ax, fig):
         ax.matshow(z, extent=(min(x), max(x), min(y), max(y)), aspect='auto', cmap='viridis')
         fig.colorbar(ax.matshow(z, extent=(min(x), max(x), min(y), max(y)), aspect='auto', cmap='viridis'),
                      label=r'$\chi^2$')
 
-    plot_chi_squared_map(values, dimensions, plot, ax)
+    plot_chi_squared_map(values, variable_dimensions, constant_dimensions, plot, ax)
 
 
-def plot_chi_squared_map_contour(values, dimensions, ax=None, dof=2):
+def plot_chi_squared_map_contour(values, variable_dimensions, constant_dimensions, ax=None, dof=2):
     def plot(x, y, z, ax, fig):
         it = np.nditer(z, flags=['multi_index', 'refs_ok'])
         z_min = np.min(np.array([z[it.multi_index] for _ in it]))
@@ -92,12 +91,12 @@ def plot_chi_squared_map_contour(values, dimensions, ax=None, dof=2):
         ax.legend()
         fig.colorbar(cp, label=r'$\chi^2$')
 
-    plot_chi_squared_map(values, dimensions, plot, ax)
+    plot_chi_squared_map(values, variable_dimensions, constant_dimensions, plot, ax)
 
 
-def plot_chi_squared_map(values, dimensions, method, ax):
-    key1, key2 = list(dimensions.keys())
-    (center1, width1, resolution1), (center2, width2, resolution2) = dimensions[key1], dimensions[key2]
+def plot_chi_squared_map(values, variable_dimensions, constant_dimensions, method, ax):
+    key1, key2 = list(variable_dimensions.keys())
+    (center1, width1, resolution1), (center2, width2, resolution2) = variable_dimensions[key1], variable_dimensions[key2]
     x = np.linspace(center1 - width1 / 2, center1 + width1 / 2, resolution1)
     y = np.linspace(center2 - width2 / 2, center2 + width2 / 2, resolution2)
     z = np.array([[d['chi2'] for d in row] for row in values])

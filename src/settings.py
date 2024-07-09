@@ -5,4 +5,5 @@ MIN_DATA_POINTS = 20
 TIME_WINDOW = 15
 BINS = 50
 
-PPFS = { 2: [0.6827, 0.9545, 0.9973] }
+# TODO dof=4 has wrong values
+PPFS = { 2: [0.6827, 0.9545, 0.9973], 4: [0.6827, 0.9545, 0.9973] }
