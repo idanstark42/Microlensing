@@ -25,11 +25,12 @@ def generate_chi_squared_nd_map(dimensions, data, get_fit, dof):
     array_index[list(dimensions.keys()).index(key)] = min_key[list(dimensions.keys()).index(key)]
     array_index = tuple(array_index)
     relevant_values = values[array_index]
-    chi2_difference_lower = np.array([abs(abs(value['chi2'] - min_chi2) - PPFS[dof][0]) for value in relevant_values if value[key] < min_value])
-    chi2_difference_upper = np.array([abs(abs(value['chi2'] - min_chi2) - PPFS[dof][0]) for value in relevant_values if value[key] > min_value])
-    lower_index, upper_index = np.argmin(chi2_difference_lower), np.argmin(chi2_difference_upper)
-    error = (abs(min_value - relevant_values[lower_index][key]), abs(min_value - relevant_values[upper_index][key]))
-    return error
+
+    lower_section = [value for value in relevant_values if value[key] < min_value]
+    upper_section = [value for value in relevant_values if value[key] > min_value]
+    lower_index = np.argmin(np.array([abs(abs(value['chi2'] - min_chi2) - PPFS[dof][0]) for value in lower_section]))
+    upper_index = np.argmin(np.array([abs(abs(value['chi2'] - min_chi2) - PPFS[dof][0]) for value in upper_section]))
+    return (abs(min_value - lower_section[lower_index][key]), abs(min_value - upper_section[upper_index][key]))
 
   params = { key: Value(values[min_key][key], get_error(key)) for key in dimensions.keys() }
   params['chi2'] = min_chi2
