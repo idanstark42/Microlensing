@@ -114,10 +114,10 @@ def part_3(graphs=True):
   umin, Tmax, fbl, tau, I_min = event.metadata['umin'].value, event.metadata['Tmax'].value, event.metadata[
     'fbl'].value, event.metadata['tau'].value, event.metadata['I*'].value
   dimensions = {
-    "umin": (umin, 1.5, 10),
-    "Tmax": (Tmax, 1.5, 10),
-    "fbl": (fbl, 1.5, 10),
-    "tau": (tau, 1.5, 10)
+    "umin": (umin, 200, 10),
+    "Tmax": (Tmax, 5, 2),
+    "fbl": (fbl, 50, 8),
+    "tau": (tau, 180, 10)
   }
 
   print('1. Generating chi squared map...')
@@ -135,10 +135,10 @@ def part_3(graphs=True):
     return
 
   plot_full_fit(data, lambda t: get_fit(t, best_values))
-  # corner_plot(chi2_map, dimensions, best_values)
-  min_ind = np.argmin(np.array([chi2_map[idx]['chi2'] for idx, _ in np.ndenumerate(chi2_map)]))
-  min_key = list(np.ndenumerate(chi2_map))[min_ind][0]
-  plot_chi_squared_map_contour(chi2_map, dimensions, variables=['umin', 'Tmax'], const_indices=min_key, ax=None, dof=4)
+  corner_plot(chi2_map, dimensions)
+  # min_ind = np.argmin(np.array([chi2_map[idx]['chi2'] for idx, _ in np.ndenumerate(chi2_map)]))
+  # min_key = list(np.ndenumerate(chi2_map))[min_ind][0]
+  # plot_chi_squared_map_contour(chi2_map, dimensions, variables=['umin', 'Tmax'], const_indices=min_key, ax=None, dof=4)
 
 
 if __name__ == '__main__':
