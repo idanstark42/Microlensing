@@ -83,7 +83,7 @@ def plot_chi_squared_map_contour(values, dimensions, variables=None, const_indic
     z_min = np.min(np.array([z[it.multi_index] for _ in it]))
     z_flattened = np.array(z.flatten())
     min_index = np.unravel_index(np.argmin(z_flattened), z.shape)
-    levels = [(index + 1, z_min + chi2.ppf(ppf, df=dof)) for index, ppf in enumerate(PPFS[dof])]
+    levels = [(index + 1, z_min + chi2.ppf(ppf, df=dof)) for index, ppf in enumerate(PPFS)]
     cp = ax.contour(x, y, z, levels=[level[1] for level in levels], colors=['blue', 'green', 'red'],
             linestyles=['solid', 'dashed', 'dashdot'])
     ax.clabel(cp, inline=True, fontsize=10, fmt={level: f'{sigma}σ' for sigma, level in levels})
@@ -111,7 +111,6 @@ def plot_chi_squared_map(values, dimensions, method, variables, const_indices, a
   for dim in range(len(dimensions)):
     array_index.append(slice(None) if dim in keys_to_keep else const_indices[dim])
   array_index = tuple(array_index)
-  print(array_index)
   relevant_values = values[array_index]
   z = np.array([[d['chi2'] for d in row] for row in relevant_values])
 
