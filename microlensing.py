@@ -65,7 +65,7 @@ def part_2(graphs=True):
   event = Event(YEAR, ID)
 
   print('1. Loading parabolic fit...')
-  parabola_prediction = fit_polynomial(event.points_around_peak(TIME_WINDOW))
+  parabola_prediction = fit_polynomial(event.points_around_peak(TIME_WINDOW, TIME_SEPERATION))
 
   print('2. Generating chi squared map...')
   data = event.data
@@ -114,9 +114,9 @@ def part_3(graphs=True):
   umin, Tmax, fbl, tau, I_min = event.metadata['umin'].value, event.metadata['Tmax'].value, event.metadata[
     'fbl'].value, event.metadata['tau'].value, event.metadata['I*'].value
   dimensions = {
-    "umin": (umin, 1.5, 10),
-    "Tmax": (Tmax, 1.5, 10),
-    "fbl": (fbl, 1.5, 10),
+    "umin": (umin, 1.5, 20),
+    "Tmax": (Tmax, 50, 20),
+    "fbl": (fbl, 0.1, 10),
     "tau": (tau, 1.5, 10)
   }
 

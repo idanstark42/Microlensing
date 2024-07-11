@@ -1,5 +1,6 @@
 import numpy as np
 from scipy.stats import chi2
+from progress.bar import IncrementalBar
 
 from src.settings import PPFS
 from src.utils import Value
@@ -11,9 +12,11 @@ def generate_chi_squared_nd_map(dimensions, data, get_fit, dof):
   time = np.array(list(point['t'] for point in data))
   values = generate_values_nd(dimensions)
   it = np.nditer(values, flags=['multi_index', 'refs_ok'])
+  bar = IncrementalBar('Calculating chi squared', max=values.size, suffix='%(percent)d%%')
   for _ in it:
     fit = get_fit(time, values[it.multi_index])
     values[it.multi_index]['chi2'] = chi_squared_reduced(data, fit, dof)
+    bar.next()
 
   min_ind = np.argmin(np.array([values[idx]['chi2'] for idx, _ in np.ndenumerate(values)]))
   min_key = list(np.ndenumerate(values))[min_ind][0]
