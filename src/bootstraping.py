@@ -7,6 +7,5 @@ def bootstrap(data, callback, iterations):
 
     fit = callback([datum for index, datum in enumerate(data) if index in indices])
     fits.append(fit)
-    print('.', end='', flush=True)
 
   return fits

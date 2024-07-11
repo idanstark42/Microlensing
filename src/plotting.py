@@ -28,7 +28,7 @@ def plot_data(data):
     plt.show()
 
 
-def plot_data_and_parabola(data, predication):
+def plot_data_and_parabola(data, predication, title="Data and Parabola"):
     time = [point['t'] for point in data]
     I = [point['I'].value for point in data]
     I_err = [point['I'].error for point in data]
@@ -37,6 +37,7 @@ def plot_data_and_parabola(data, predication):
     x = np.linspace(min(time), max(time), 100)
     y = predication['a2'].value * (x ** 2) + predication['a1'].value * x + predication['a0'].value
     plt.plot(x, y, label="Fitted Parabola")
+    plt.title(title)
     plt.xlabel('t[years]')
     plt.ylabel('I/I0')
     plt.show()

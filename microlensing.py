@@ -8,15 +8,15 @@ from src.plotting import plot_chi_squared_map_gridmap, plot_chi_squared_map_cont
   plot_histogram_and_gaussian, plot_full_fit, corner_plot
 import numpy as np
 from src.ogle import Event
-from src.utils import Value, I, I_t
-from src.settings import YEAR, ID, BOOTSTRAP_SAMPLES, MIN_DATA_POINTS, TIME_WINDOW
+from src.utils import Value, I_t
+from src.settings import YEAR, ID, BOOTSTRAP_SAMPLES, MIN_DATA_POINTS, TIME_WINDOW, TIME_SEPERATION
 
 
 def part_1(graphs=True):
   print()
   print('--- part 1 ---')
   event = Event(YEAR, ID)
-  data = event.points_around_peak(TIME_WINDOW)
+  data = event.points_around_peak(TIME_WINDOW, TIME_SEPERATION)
 
   if len(data) < MIN_DATA_POINTS:
     print(f'Data has only {len(data)} points, which is less than the minimum of {MIN_DATA_POINTS}. Exiting.')
@@ -114,10 +114,10 @@ def part_3(graphs=True):
   umin, Tmax, fbl, tau, I_min = event.metadata['umin'].value, event.metadata['Tmax'].value, event.metadata[
     'fbl'].value, event.metadata['tau'].value, event.metadata['I*'].value
   dimensions = {
-    "umin": (umin, 200, 10),
-    "Tmax": (Tmax, 5, 2),
-    "fbl": (fbl, 50, 8),
-    "tau": (tau, 180, 10)
+    "umin": (umin, 1.5, 10),
+    "Tmax": (Tmax, 1.5, 10),
+    "fbl": (fbl, 1.5, 10),
+    "tau": (tau, 1.5, 10)
   }
 
   print('1. Generating chi squared map...')
@@ -135,10 +135,10 @@ def part_3(graphs=True):
     return
 
   plot_full_fit(data, lambda t: get_fit(t, best_values))
-  corner_plot(chi2_map, dimensions)
-  # min_ind = np.argmin(np.array([chi2_map[idx]['chi2'] for idx, _ in np.ndenumerate(chi2_map)]))
-  # min_key = list(np.ndenumerate(chi2_map))[min_ind][0]
-  # plot_chi_squared_map_contour(chi2_map, dimensions, variables=['umin', 'Tmax'], const_indices=min_key, ax=None, dof=4)
+  # corner_plot(chi2_map, dimensions, best_values)
+  min_ind = np.argmin(np.array([chi2_map[idx]['chi2'] for idx, _ in np.ndenumerate(chi2_map)]))
+  min_key = list(np.ndenumerate(chi2_map))[min_ind][0]
+  plot_chi_squared_map_contour(chi2_map, dimensions, variables=['umin', 'Tmax'], const_indices=min_key, ax=None, dof=4)
 
 
 if __name__ == '__main__':
@@ -166,7 +166,7 @@ if __name__ == '__main__':
       try:
         print('.', end='', flush=True)
         event = Event(YEAR, f"blg-{str(i).zfill(4)}")
-        points = event.points_around_peak(TIME_WINDOW)
+        points = event.points_around_peak(TIME_WINDOW, TIME_SEPERATION)
         if len(points) > MIN_DATA_POINTS:
           events.append({'id': f"blg-{str(i).zfill(4)}", 'points': len(points), 'fbl': event.metadata['fbl']})
       except:
@@ -175,6 +175,28 @@ if __name__ == '__main__':
     print('sorting...')
     events = sorted(events, key=lambda event: event['points'], reverse=True)
     print(tabulate(events, headers='keys'))
+
+  elif command == 'find_event':
+    for i in range(1, 10000):
+      id = f"blg-{str(i).zfill(4)}"
+      try:
+        event = Event(YEAR, id)
+        points = event.points_around_peak(TIME_WINDOW, TIME_SEPERATION)
+        if len(points) > MIN_DATA_POINTS and event.metadata['fbl'].value > 0.9:
+          print(event.id)
+          parabola_prediction = fit_polynomial(points)
+          print(f"χ²:\t{parabola_prediction['chi2']}")
+          print(f"a0: {parabola_prediction['a0']}\ta1: {parabola_prediction['a1']}\ta2: {parabola_prediction['a2']}")
+          print(f"umin: {parabola_prediction['umin']}\tTmax: {parabola_prediction['Tmax']}\ttau: {parabola_prediction['tau']}")
+          plot_data_and_parabola(points, parabola_prediction, title=id)
+          if(parabola_prediction['umin'].error < 10 * event.metadata['umin'].error or parabola_prediction['Tmax'].error < 10 * event.metadata['Tmax'].error or parabola_prediction['tau'].error < 10 * event.metadata['tau'].error):
+            print('---------------------------------- ????? ----------------------------------')
+          if(parabola_prediction['umin'].error < 10 * event.metadata['umin'].error and parabola_prediction['Tmax'].error < 10 * event.metadata['Tmax'].error and parabola_prediction['tau'].error < 10 * event.metadata['tau'].error):
+            print('---------------------------------- found ----------------------------------')
+        else:
+          print(id + ': not fitting criteria')
+      except:
+        print(id + ': error')
 
   else:
     print('Invalid command')

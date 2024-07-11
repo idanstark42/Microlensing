@@ -3,6 +3,7 @@ from numpy.linalg import LinAlgError
 from src.utils import Value, u
 from iminuit import Minuit
 from iminuit.cost import LeastSquares
+from matplotlib import pyplot as plt
 
 from src.settings import BINS
 
@@ -10,7 +11,8 @@ from src.settings import BINS
 # polynomial
 
 def fit_polynomial(data, degree=2):
-    time = np.array([point['t'] for point in data])
+    t_shift = data[0]['t']
+    time = np.array([point['t'] - t_shift for point in data])
     I = np.array([point['I'].value for point in data])
     I_err = np.array([point['I'].error for point in data])
 
@@ -20,6 +22,7 @@ def fit_polynomial(data, degree=2):
 
     dof = len(time) - (degree + 1)
     residuals = I - fit
+    
     chi2_red = np.sum((residuals / I_err) ** 2) / dof
 
     coefficients_errs = calc_coefficient_errors(residuals, time, degree)
@@ -28,22 +31,28 @@ def fit_polynomial(data, degree=2):
     tau = calc_tau(a2, a1, a0)
     t_max = calc_tmax(a2, a1, a0)
     umin = calc_umin(a2, a1, a0, t_max)
+    t_max.value += t_shift
+    
+    shifted_a2_value = a2.value
+    shifted_a1_value = a1.value - 2 * a2.value * t_shift
+    shifted_a0_value = a0.value + a2.value * t_shift ** 2 - a1.value * t_shift
 
-    return {'tau': tau, 'Tmax': t_max, 'umin': umin, 'a2': a2, 'a1': a1, 'a0': a0, 'chi2': chi2_red}
+    a2, a1, a0 = Value(shifted_a2_value, a2.error), Value(shifted_a1_value, a1.error), Value(shifted_a0_value, a0.error)
 
+    return { 'tau': tau, 'Tmax': t_max, 'umin': umin, 'a2': a2, 'a1': a1, 'a0': a0, 'chi2': chi2_red, 'used_data': data }
 
 # helper functions
 
 def calc_tmax(a2, a1, a0):
     t_max = (-1) * a1.value / (2 * a2.value)
-    t_max_error = (((a1.value / (2 * (a2.value ** 2))) * a2.error) ** 2 + ((1 / (2 * a2.value)) * a1.error) ** 2) ** 0.5
+    t_max_error = ((t_max * a2.error / a2.value) ** 2 + (t_max * a1.error / a1.value) ** 2) ** 0.5
     return Value(t_max, t_max_error)
 
 
 def calc_tau(a2, a1, a0):
-    tau = np.sqrt(np.abs((a1.value ** 2 - 4 * a2.value * a0.value) / 2)) / abs(a2.value)
-    tau_error = (1 / tau) * (((a1.value ** 2 + 4 * a2.value * a0.value) / 4 * a2.value ** 3) * a2.error + (
-            a1.value / a2.value ** 2) * a1.error - (2 / a2.value) * a0.error)
+    tau = np.sqrt(np.abs(a1.value ** 2 - 4 * a2.value * a0.value)) / (2 * abs(a2.value))
+    e = a2.value * a0.value / a1.value ** 2
+    tau_error = tau * (((1-2*e)/(1-4*e) * a1.error / a1.value) ** 2 + (1/(1-4*e) * a2.error / a2.value) ** 2 + (2*e/(1-4*e) * a0.error / a0.value) ** 2) ** 0.5
     return Value(tau, tau_error)
 
 
