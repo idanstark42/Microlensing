@@ -28,9 +28,9 @@ def fit_polynomial(data, degree=2):
     coefficients_errs = calc_coefficient_errors(residuals, time, degree)
     a2, a1, a0 = [Value(coefficients[i], coefficients_errs[i]) for i in range(degree + 1)]
 
-    tau = calc_tau(a2, a1, a0)
     t_max = calc_tmax(a2, a1, a0)
     umin = calc_umin(a2, a1, a0, t_max)
+    tau = calc_tau(a2, a1, a0, umin)
     t_max.value += t_shift
     
     shifted_a2_value = a2.value
@@ -39,7 +39,7 @@ def fit_polynomial(data, degree=2):
 
     a2, a1, a0 = Value(shifted_a2_value, a2.error), Value(shifted_a1_value, a1.error), Value(shifted_a0_value, a0.error)
 
-    return { 'tau': tau, 'Tmax': t_max, 'umin': umin, 'a2': a2, 'a1': a1, 'a0': a0, 'chi2': chi2_red, 'time': time, 'resituals': residuals }
+    return { 'tau': tau, 'Tmax': t_max, 'umin': umin, 'a2': a2, 'a1': a1, 'a0': a0, 'chi2': chi2_red, 'time': time, 'residuals': residuals }
 
 # helper functions
 
@@ -49,19 +49,25 @@ def calc_tmax(a2, a1, a0):
     return Value(t_max, t_max_error)
 
 
-def calc_tau(a2, a1, a0):
-    tau = np.sqrt(np.abs(a1.value ** 2 - 4 * a2.value * a0.value)) / (2 * abs(a2.value))
-    e = a2.value * a0.value / a1.value ** 2
-    tau_error = tau * (((1-2*e)/(1-4*e) * a1.error / a1.value) ** 2 + (1/(1-4*e) * a2.error / a2.value) ** 2 + (2*e/(1-4*e) * a0.error / a0.value) ** 2) ** 0.5
-    return Value(tau, tau_error)
-
-
 def calc_umin(a2, a1, a0, t_max):
     I_max = a2.value * t_max.value ** 2 + a1.value * t_max.value + a0.value
     I_max_error = (((t_max.value ** 2) * a2.error) ** 2 + (t_max.value * a1.error) ** 2 + a0.error ** 2 + (
             (2 * a2.value * t_max.value + a1.value) * t_max.error) ** 2) ** 0.5
-    return u(Value(I_max, I_max_error), t_max)
+    return u(Value(I_max, I_max_error))
 
+
+def calc_tau(a2, a1, a0, umin):
+    I_tau = (umin.value ** 2 + 2.25) / (((umin.value ** 2 + 0.25) * (umin.value ** 2 + 4.25)) ** 0.5)
+    I_tau_error = 8 * umin.value / (((umin.value ** 2 + 0.25) * (umin.value ** 2 + 4.25)) ** 1.5) * umin.error
+    descriminant = a1.value ** 2 - 4 * a2.value * (a0.value - I_tau)
+    tau = descriminant ** 0.5 / np.abs(a2.value)
+    
+    tau_error_a2 = (tau + 2 * (a0.value - I_tau) / descriminant ** 0.5) / a2.value * a2.error
+    tau_error_a1 = (a1.value / (descriminant ** 0.5)) / a2.value * a1.error
+    tau_error_a0 = 2 * a0.error / descriminant ** 0.5
+    tau_error_I_tau = 2 * I_tau_error / descriminant ** 0.5
+    tau_error = (tau_error_a2 ** 2 + tau_error_a1 ** 2 + tau_error_a0 ** 2 + tau_error_I_tau ** 2) ** 0.5
+    return Value(tau, tau_error)
 
 def calc_coefficient_errors(residuals, time, degree):
     std_errors = [np.nan, np.nan, np.nan]

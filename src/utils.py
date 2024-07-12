@@ -18,6 +18,9 @@ class Value:
 
   def __repr__(self):
     return f"Value({self.value}, {self.error})"
+  
+  def full_str(self):
+    return f"{self.value} ± {self.error}"
 
   def n_sigma(self, other):
     return abs(self.value - other.value) / np.sqrt(self.error ** 2 + other.error ** 2)
@@ -41,7 +44,7 @@ def I(m, m_star):
   I_error = ((m_star.error ** 2 + m.error ** 2) ** 0.5) * ((I_value*np.log(10))/2.5)
   return Value(I_value, I_error)
 
-def u(I, t_max):
+def u(I):
   u_value = np.sqrt(2 * np.sqrt(I.value ** 2 / (I.value ** 2 - 1)) - 2)
   u_error = (4 * I.error / u_value) * ((I.value ** 2 + I.value - 1) / np.power(I.value ** 2 - 1, 3 / 2))
   return Value(u_value, u_error)

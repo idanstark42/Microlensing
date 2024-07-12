@@ -50,16 +50,5 @@ class Event:
   def __str__(self):
     return f"{self.year} {self.id}" + '\n\n' + '\n'.join([key + ":\t"  + str(value) for key, value in self.metadata.items()])
 
-  def points_around_peak (self, time_window, time_seperation):
-    data = [datum for datum in self.data if abs(datum['t'] - self.metadata['Tmax'].value) < time_window / 2]
-    filtered_data = []
-    for datum in data:
-      if len(filtered_data) == 0:
-        filtered_data.append(datum)
-      elif datum['t'] - filtered_data[-1]['t'] > time_seperation:
-        filtered_data.append(datum)
-      else:
-        filtered_data[-1]['t'] = (filtered_data[-1]['t'] + datum['t']) / 2
-        filtered_data[-1]['I'].value = (filtered_data[-1]['I'].value + datum['I'].value) / 2
-        filtered_data[-1]['I'].error = (filtered_data[-1]['I'].error ** 2 + datum['I'].error ** 2) ** 0.5
-    return filtered_data
+  def points_around_peak (self, time_window):
+    return [datum for datum in self.data if abs(datum['t'] - self.metadata['Tmax'].value) < time_window / 2]

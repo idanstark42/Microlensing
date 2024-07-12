@@ -9,14 +9,14 @@ from src.plotting import plot_chi_squared_map_gridmap, plot_chi_squared_map_cont
 import numpy as np
 from src.ogle import Event
 from src.utils import Value, I_t
-from src.settings import YEAR, ID, BOOTSTRAP_SAMPLES, MIN_DATA_POINTS, TIME_WINDOW, TIME_SEPERATION
+from src.settings import YEAR, ID, BOOTSTRAP_SAMPLES, MIN_DATA_POINTS, TIME_WINDOW
 
 
 def part_1(graphs=True):
   print()
   print('--- part 1 ---')
   event = Event(YEAR, ID)
-  data = event.points_around_peak(TIME_WINDOW, TIME_SEPERATION)
+  data = event.points_around_peak(TIME_WINDOW)
 
   if len(data) < MIN_DATA_POINTS:
     print(f'Data has only {len(data)} points, which is less than the minimum of {MIN_DATA_POINTS}. Exiting.')
@@ -38,7 +38,7 @@ def part_1(graphs=True):
   print('3. Done')
   print()
   print(f"χ²:\t{parabola_prediction['chi2']}")
-  print(f"a0: {parabola_prediction['a0']}\ta1: {parabola_prediction['a1']}\ta2: {parabola_prediction['a2']}")
+  print(f"a0: {parabola_prediction['a0'].full_str()}\ta1: {parabola_prediction['a1'].full_str()}\ta2: {parabola_prediction['a2'].full_str()}")
   print(tabulate([[
     field,
     event.metadata[field],
@@ -66,7 +66,7 @@ def part_2(graphs=True):
   event = Event(YEAR, ID)
 
   print('1. Loading parabolic fit...')
-  parabola_prediction = fit_polynomial(event.points_around_peak(TIME_WINDOW, TIME_SEPERATION))
+  parabola_prediction = fit_polynomial(event.points_around_peak(TIME_WINDOW))
 
   print('2. Generating chi squared map...')
   data = event.data
@@ -167,7 +167,7 @@ if __name__ == '__main__':
       try:
         print('.', end='', flush=True)
         event = Event(YEAR, f"blg-{str(i).zfill(4)}")
-        points = event.points_around_peak(TIME_WINDOW, TIME_SEPERATION)
+        points = event.points_around_peak(TIME_WINDOW)
         if len(points) > MIN_DATA_POINTS:
           events.append({'id': f"blg-{str(i).zfill(4)}", 'points': len(points), 'fbl': event.metadata['fbl']})
       except:
@@ -182,7 +182,7 @@ if __name__ == '__main__':
       id = f"blg-{str(i).zfill(4)}"
       try:
         event = Event(YEAR, id)
-        points = event.points_around_peak(TIME_WINDOW, TIME_SEPERATION)
+        points = event.points_around_peak(TIME_WINDOW)
         if len(points) > MIN_DATA_POINTS and event.metadata['fbl'].value > 0.9:
           print(event.id)
           parabola_prediction = fit_polynomial(points)
