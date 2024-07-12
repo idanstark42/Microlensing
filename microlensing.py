@@ -5,7 +5,7 @@ from tabulate import tabulate
 from src.regression import fit_polynomial, fit_histogram_gaussian, gaussian, generate_chi_squared_nd_map
 from src.bootstraping import bootstrap
 from src.plotting import plot_chi_squared_map_gridmap, plot_chi_squared_map_contour, plot_event, plot_data_and_parabola, \
-  plot_histogram_and_gaussian, plot_full_fit, corner_plot
+  plot_histogram_and_gaussian, plot_full_fit, plot_resituals, corner_plot
 import numpy as np
 from src.ogle import Event
 from src.utils import Value, I_t
@@ -54,6 +54,7 @@ def part_1(graphs=True):
     return
 
   plot_data_and_parabola(data, parabola_prediction)
+  plot_resituals(parabola_prediction['time'], parabola_prediction['residuals'])
   for field in FIELDS:
     plot_histogram_and_gaussian([parabola_prediction[field].value for parabola_prediction in bootstrap_predictions],
                   field, lambda x: gaussian(x, *gaussians[field][:3]))

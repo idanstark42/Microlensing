@@ -39,7 +39,7 @@ def fit_polynomial(data, degree=2):
 
     a2, a1, a0 = Value(shifted_a2_value, a2.error), Value(shifted_a1_value, a1.error), Value(shifted_a0_value, a0.error)
 
-    return { 'tau': tau, 'Tmax': t_max, 'umin': umin, 'a2': a2, 'a1': a1, 'a0': a0, 'chi2': chi2_red, 'used_data': data }
+    return { 'tau': tau, 'Tmax': t_max, 'umin': umin, 'a2': a2, 'a1': a1, 'a0': a0, 'chi2': chi2_red, 'time': time, 'resituals': residuals }
 
 # helper functions
 

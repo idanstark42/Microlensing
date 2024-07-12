@@ -27,6 +27,14 @@ def plot_data(data):
     plt.ylabel('I/I0')
     plt.show()
 
+def plot_resituals(x, residuals):
+    plt.scatter(x, residuals)
+    plt.title('Residuals')
+    plt.xlabel('t[day]')
+    plt.ylabel('Residuals')
+    # add line at 0
+    plt.axhline(0, color='black', linestyle='--')
+    plt.show()
 
 def plot_data_and_parabola(data, predication, title="Data and Parabola"):
     time = [point['t'] for point in data]
