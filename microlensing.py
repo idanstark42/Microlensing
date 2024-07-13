@@ -5,7 +5,7 @@ from tabulate import tabulate
 from src.regression import fit_polynomial, fit_histogram_gaussian, gaussian, generate_chi_squared_nd_map
 from src.bootstraping import bootstrap
 from src.plotting import plot_chi_squared_map_gridmap, plot_chi_squared_map_contour, plot_event, plot_data_and_parabola, \
-  plot_histogram_and_gaussian, plot_full_fit, plot_resituals, corner_plot
+  plot_histogram_and_gaussian, plot_full_fit, plot_residuals, corner_plot
 import numpy as np
 from src.ogle import Event
 from src.utils import Value, I_t
@@ -54,10 +54,11 @@ def part_1(graphs=True):
     return
 
   plot_data_and_parabola(data, parabola_prediction)
-  plot_resituals(parabola_prediction['time'], parabola_prediction['residuals'])
+  plot_residuals(parabola_prediction['time'], parabola_prediction['residuals'])
   for field in FIELDS:
     plot_histogram_and_gaussian([parabola_prediction[field].value for parabola_prediction in bootstrap_predictions],
                   field, lambda x: gaussian(x, *gaussians[field][:3]))
+    plot_residuals(gaussians[field][4], gaussians[field][5], title=f'{field} residuals', xlabel=field)
 
 
 def part_2(graphs=True):
@@ -76,15 +77,15 @@ def part_2(graphs=True):
   dimensions = {"umin": (umin_p, 0.6, 50), "Tmax": (tmax_p, 50, 50)}
   chi2_map, best_params = generate_chi_squared_nd_map(dimensions, data, get_fit, 2)
 
-  # print('3. Bootstrapping...')
-  # bootstrap_predictions = bootstrap(data, lambda data: generate_chi_squared_nd_map(dimensions, data, get_fit, 2)[1],
-  #                   BOOTSTRAP_SAMPLES)
+  print('3. Bootstrapping...')
+  bootstrap_predictions = bootstrap(data, lambda data: generate_chi_squared_nd_map(dimensions, data, get_fit, 2)[1],
+                    BOOTSTRAP_SAMPLES)
 
   FIELDS = ['umin', 'Tmax']
 
-  # gaussians = {field: fit_histogram_gaussian([prediction[field].value for prediction in bootstrap_predictions]) for
-  #        field in FIELDS}
-  # gaussian_predictions = {key: Value(gaussians[key][1], gaussians[key][2]) for key in gaussians}
+  gaussians = {field: fit_histogram_gaussian([prediction[field].value for prediction in bootstrap_predictions]) for
+         field in FIELDS}
+  gaussian_predictions = {key: Value(gaussians[key][1], gaussians[key][2]) for key in gaussians}
 
   print('4. Done')
 
@@ -93,10 +94,10 @@ def part_2(graphs=True):
     event.metadata[key],
     best_params[key],
     parabola_prediction[key],
-    # gaussian_predictions[key],
+    gaussian_predictions[key],
     abs(best_params[key].value - event.metadata[key].value) / event.metadata[key].value
   ] for key in FIELDS],
-    headers=['Parameter', 'OGLE', 'Best', 'Parabola', 'Difference']))
+    headers=['Parameter', 'OGLE', 'Best', 'Parabola', 'Bootstraping', 'Difference']))
 
   if not graphs:
     return

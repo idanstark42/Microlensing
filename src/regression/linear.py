@@ -94,4 +94,4 @@ def fit_histogram_gaussian(samples):
     least_squares = LeastSquares(bin_midpoints, bin_counts, 1, gaussian)
     m = Minuit(least_squares, amplitude=0.7, mean=np.mean(bin_midpoints), sigma=np.std(bin_midpoints))
     m.migrad()
-    return m.values["amplitude"], m.values["mean"], m.values["sigma"], m.fval / (len(bin_midpoints) - 3)
+    return m.values["amplitude"], m.values["mean"], m.values["sigma"], m.fval / (len(bin_midpoints) - 3), bin_midpoints, bin_counts - gaussian(bin_midpoints, m.values["amplitude"], m.values["mean"], m.values["sigma"])

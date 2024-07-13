@@ -27,10 +27,10 @@ def plot_data(data):
     plt.ylabel('I/I0')
     plt.show()
 
-def plot_resituals(x, residuals):
+def plot_residuals(x, residuals, title="Residuals", xlabel="t[day]"):
     plt.scatter(x, residuals)
-    plt.title('Residuals')
-    plt.xlabel('t[day]')
+    plt.title(title)
+    plt.xlabel(xlabel)
     plt.ylabel('Residuals')
     # add line at 0
     plt.axhline(0, color='black', linestyle='--')
