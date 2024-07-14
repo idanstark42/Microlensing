@@ -52,10 +52,11 @@ def plot_data_and_parabola(data, predication, title="Data and Parabola"):
 
 
 def plot_histogram_and_gaussian(samples, name, gaussian):
-    plt.hist(samples, bins=BINS, density=True, alpha=0.6, edgecolor='black')
+    plt.hist(samples, bins=BINS, alpha=0.6, edgecolor='black')
     x = np.linspace(min(samples), max(samples), 1000)
     y = gaussian(x)
-    # plt.axvline(mean, color='blue', linestyle='--', label=f'Mean: {mean:.2f}')
+    mean = np.mean(samples)
+    plt.axvline(mean, color='blue', linestyle='--', label=f'Mean: {mean:.2f}')
     plt.plot(x, y, label="Gaussian")
     plt.title(f"{name} histogram")
     plt.xlabel(name)
@@ -114,7 +115,7 @@ def plot_chi_squared_map(values, dimensions, method, variables, const_indices, a
     (center1, width1, resolution1), (center2, width2, resolution2) = dimensions[key1], dimensions[key2]
     x = np.linspace(center1 - width1 / 2, center1 + width1 / 2, resolution1)
     y = np.linspace(center2 - width2 / 2, center2 + width2 / 2, resolution2)
-
+  
     array_index = []
     keys_to_keep = [list(dimensions.keys()).index(key1), list(dimensions.keys()).index(key2)]
     for dim in range(len(dimensions)):

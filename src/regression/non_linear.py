@@ -35,9 +35,9 @@ def generate_chi_squared_nd_map(dimensions, data, get_fit, dof):
       lower_section = [value for value in relevant_values if value[key] < min_value]
       upper_section = [value for value in relevant_values if value[key] > min_value]
       lower_index = np.argmin(
-        np.array([abs(abs(value['chi2'] - min_chi2) - chi2.ppf(PPFS[0], df=dof)) for value in lower_section]))
+        np.array([abs(abs(value['chi2'] - min_chi2) - chi2.ppf(PPFS[0], df=1)) for value in lower_section]))
       upper_index = np.argmin(
-        np.array([abs(abs(value['chi2'] - min_chi2) - chi2.ppf(PPFS[0], df=dof)) for value in upper_section]))
+        np.array([abs(abs(value['chi2'] - min_chi2) - chi2.ppf(PPFS[0], df=1)) for value in upper_section]))
       return abs(min_value - lower_section[lower_index][key]), abs(min_value - upper_section[upper_index][key])
     except IndexError:  # TODO Fix that
       return 0

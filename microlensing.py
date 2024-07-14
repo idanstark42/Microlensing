@@ -74,7 +74,7 @@ def part_2(graphs=True):
   umin_p, tmax_p = parabola_prediction['umin'].value, parabola_prediction['Tmax'].value
   get_fit = lambda t, parameters: I_t(t, parameters['umin'], parameters['Tmax'], event.metadata['tau'].value,
                     event.metadata['fbl'].value, event.metadata['I*'].value)
-  dimensions = {"umin": (umin_p, 0.6, 50), "Tmax": (tmax_p, 50, 50)}
+  dimensions = {"umin": (umin_p, 0.05, 100), "Tmax": (tmax_p, 1, 100)}
   chi2_map, best_params = generate_chi_squared_nd_map(dimensions, data, get_fit, 2)
 
   print('3. Bootstrapping...')
@@ -104,8 +104,15 @@ def part_2(graphs=True):
 
   plot_full_fit(data, lambda t: get_fit(t, {
     key: best_params[key].value if type(best_params[key]) == Value else best_params[key] for key in best_params}))
+  plot_residuals([data['t'] for data in data], [data['I'].value - get_fit(data['t'], {
+    key: best_params[key].value if type(best_params[key]) == Value else best_params[key] for key in best_params}) for data in data])
   plot_chi_squared_map_gridmap(chi2_map, dimensions)
   plot_chi_squared_map_contour(chi2_map, dimensions)
+
+  for field in FIELDS:
+    plot_histogram_and_gaussian([prediction[field].value for prediction in bootstrap_predictions],
+                  field, lambda x: gaussian(x, *gaussians[field][:3]))
+    plot_residuals(gaussians[field][4], gaussians[field][5], title=f'{field} residuals', xlabel=field)
 
 
 def part_3(graphs=True):
