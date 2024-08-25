@@ -36,13 +36,16 @@ def plot_residuals(x, residuals, title="Residuals", xlabel="t[day]"):
     plt.axhline(0, color='black', linestyle='--')
     plt.show()
 
-def plot_data_and_parabola(data, predication, title="Data and Parabola"):
+def plot_data_and_parabola(data, predication, title="Data and Parabola", tau):
     time = [point['t'] for point in data]
     I = [point['I'].value for point in data]
     I_err = [point['I'].error for point in data]
     plt.scatter(time, I, label="Data")
     plt.errorbar(time, I, yerr=I_err, fmt='o')
-    x = np.linspace(min(time), max(time), 100)
+    max_I = max(I)
+    max_I_index = I.index(max_I)
+    max_I_time = time[max_I_index]
+    x = np.linspace(max_I_time - tau, max_I_time + tau, 100)
     y = predication['a2'].value * (x ** 2) + predication['a1'].value * x + predication['a0'].value
     plt.plot(x, y, label="Fitted Parabola")
     plt.title(title)
