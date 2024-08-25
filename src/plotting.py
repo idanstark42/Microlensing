@@ -58,8 +58,8 @@ def plot_histogram_and_gaussian(samples, name, gaussian):
     mean = np.mean(samples)
     plt.axvline(mean, color='blue', linestyle='--', label=f'Mean: {mean:.2f}')
     plt.plot(x, y, label="Gaussian")
-    plt.title(f"umin histogram")
-    plt.xlabel('umin')
+    plt.title(f"{name} Histogram")
+    plt.xlabel(name)
     plt.ylabel('# of samples')
     plt.show()
 

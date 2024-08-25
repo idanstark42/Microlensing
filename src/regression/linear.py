@@ -87,7 +87,6 @@ def calc_coefficient_errors(residuals, time, degree):
 def gaussian(x, amplitude, mean, sigma):
     return amplitude / (sigma * np.sqrt(2 * np.pi)) * np.exp(-0.5 * ((x - mean) / sigma) ** 2)
 
-
 def fit_histogram_gaussian(samples):
     bin_counts, bin_edges = np.histogram(samples, bins=BINS, density=True)
     bin_midpoints = (bin_edges[:-1] + bin_edges[1:]) / 2
