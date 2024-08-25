@@ -1,7 +1,7 @@
 from matplotlib import pyplot as plt
 import numpy as np
 from scipy.stats import chi2
-from src.settings import BINS, PPFS
+from src.settings import BINS, PPFS, TIME_WINDOW
 
 
 def plot_event(event):
@@ -36,18 +36,19 @@ def plot_residuals(x, residuals, title="Residuals", xlabel="t[day]"):
     plt.axhline(0, color='black', linestyle='--')
     plt.show()
 
-def plot_data_and_parabola(data, predication, title="Data and Parabola", tau):
+def plot_data_and_parabola(data, prediction, title="Data and Parabola"):
     time = [point['t'] for point in data]
     I = [point['I'].value for point in data]
     I_err = [point['I'].error for point in data]
     plt.scatter(time, I, label="Data")
     plt.errorbar(time, I, yerr=I_err, fmt='o')
-    max_I = max(I)
-    max_I_index = I.index(max_I)
-    max_I_time = time[max_I_index]
-    x = np.linspace(max_I_time - tau, max_I_time + tau, 100)
-    y = predication['a2'].value * (x ** 2) + predication['a1'].value * x + predication['a0'].value
+    max_time = - prediction['a1'].value / (2 * prediction['a2'].value)
+    tau = prediction['tau'].value
+    x = np.linspace(max_time - tau, max_time + tau, 100)
+    y = prediction['a2'].value * (x ** 2) + prediction['a1'].value * x + prediction['a0'].value
     plt.plot(x, y, label="Fitted Parabola")
+    plt.axvline(max_time + tau / 2, color='blue', linestyle='--')
+    plt.axvline(max_time - tau / 2, color='blue', linestyle='--')
     plt.title(title)
     plt.xlabel('t[years]')
     plt.ylabel('I/I0')

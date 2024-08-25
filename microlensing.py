@@ -53,12 +53,12 @@ def part_1(graphs=True):
   if not graphs:
     return
 
-  plot_data_and_parabola(data, parabola_prediction, tau=parabola_prediction['tau'].value)
+  plot_data_and_parabola(data, parabola_prediction)
   plot_residuals(parabola_prediction['time'], parabola_prediction['residuals'])
-  for field in FIELDS:
-    plot_histogram_and_gaussian([parabola_prediction[field].value for parabola_prediction in bootstrap_predictions],
-                  field, lambda x: gaussian(x, *gaussians[field][:3]))
-    plot_residuals(gaussians[field][4], gaussians[field][5], title=f'{field} residuals', xlabel=field)
+  # for field in FIELDS:
+  #   plot_histogram_and_gaussian([parabola_prediction[field].value for parabola_prediction in bootstrap_predictions],
+  #                 field, lambda x: gaussian(x, *gaussians[field][:3]))
+  #   plot_residuals(gaussians[field][4], gaussians[field][5], title=f'{field} residuals', xlabel=field)
 
 
 def part_2(graphs=True):
