@@ -66,7 +66,7 @@ def calc_tau(a2, a1, a0, umin):
     descriminant = a1.value ** 2 - 4 * a2.value * (a0.value - I_tau)
     tau = descriminant ** 0.5 / np.abs(a2.value)
     
-    tau_error = tau * (((a1.value ** 2) * (a1.error ** 2) + 4 * (a2.value ** 2) *(I_tau_error ** 2 + a0.error ** 2) + descriminant * (a2.error ** 2) / (a2.value ** 2)) / descriminant) ** 0.5
+    tau_error = tau * (((a1.value ** 2) * (a1.error ** 2) + 4 * (a2.value ** 2) *(I_tau_error ** 2 + a0.error ** 2) + (a1.value ** 2 - 2 * a2.value * (a0.value - I_tau)) * (a2.error ** 2) / (a2.value ** 2)) / descriminant) ** 0.5
     return Value(tau, tau_error)
 
 def calc_coefficient_errors(residuals, time, degree):
