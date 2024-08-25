@@ -52,14 +52,14 @@ def plot_data_and_parabola(data, predication, title="Data and Parabola"):
 
 
 def plot_histogram_and_gaussian(samples, name, gaussian):
-    plt.hist(samples, bins=BINS, alpha=0.6, edgecolor='black')
+    plt.hist(samples, bins=BINS, alpha=0.6, edgecolor='black', density=True)
     x = np.linspace(min(samples), max(samples), 1000)
     y = gaussian(x)
     mean = np.mean(samples)
     plt.axvline(mean, color='blue', linestyle='--', label=f'Mean: {mean:.2f}')
     plt.plot(x, y, label="Gaussian")
-    plt.title(f"{name} histogram")
-    plt.xlabel(name)
+    plt.title(f"umin histogram")
+    plt.xlabel('umin')
     plt.ylabel('# of samples')
     plt.show()
 
@@ -72,6 +72,9 @@ def plot_full_fit(data, fit):
     plt.errorbar(time, I, yerr=I_err, fmt='o')
     x = np.linspace(min(time), max(time))
     y = fit(x)
+    plt.title("I(t)/I* Fit")
+    plt.xlabel('t[day]')
+    plt.ylabel('I/I0')
     plt.plot(x, y, label="Fit")
     plt.show()
 
@@ -99,7 +102,7 @@ def plot_chi_squared_map_contour(values, dimensions, variables=None, const_indic
         ax.clabel(cp, inline=True, fontsize=10, fmt={level: f'{sigma}σ' for sigma, level in levels})
         ax.scatter(x[min_index[1]], y[min_index[0]], color='black', marker='x', label='Min $\chi^2$')
         ax.legend()
-        fig.colorbar(cp, label=r'$\chi^2$')
+        # fig.colorbar(cp, label=r'$\chi^2$')
 
     plot_chi_squared_map(values, dimensions, plot, variables, const_indices, ax)
 
@@ -154,16 +157,15 @@ def corner_plot(values, dimensions):
             var_x = keys[j]
             var_y = keys[i]
             ax = axes[i, j]
-            plot_chi_squared_map_contour(values, dimensions, variables=(var_x, var_y), const_indices=min_key, ax=ax)
-            if i == num_keys - 1:
-                ax.set_xlabel(var_x)
-            if j == 0:
-                ax.set_ylabel(var_y)
+            if (var_x=='tau' and var_y=='fbl') or (var_y=='tau' and var_x=='fbl'):
+                plot_chi_squared_map_contour(values, dimensions, variables=(var_x, var_y), const_indices=min_key, ax=ax)
+            else:
+                plot_chi_squared_map_contour(values, dimensions, variables=(var_y, var_x), const_indices=min_key, ax=ax)
     for i in range(num_keys):
         for j in range(num_keys):
             if i <= j:
                 axes[i, j].set_visible(False)
-    plt.suptitle('Corner Plot', fontsize=16)
-    plt.subplots_adjust(hspace=0.8, wspace=0.8)
+    plt.suptitle('BLG 109 - Corner Plot', fontsize=16)
+    plt.subplots_adjust(hspace=0.8, wspace=1)
     plt.tight_layout()
     plt.show()

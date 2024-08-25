@@ -89,9 +89,9 @@ def gaussian(x, amplitude, mean, sigma):
 
 
 def fit_histogram_gaussian(samples):
-    bin_counts, bin_edges = np.histogram(samples, bins=BINS)
+    bin_counts, bin_edges = np.histogram(samples, bins=BINS, density=True)
     bin_midpoints = (bin_edges[:-1] + bin_edges[1:]) / 2
     least_squares = LeastSquares(bin_midpoints, bin_counts, 1, gaussian)
-    m = Minuit(least_squares, amplitude=0.7, mean=np.mean(bin_midpoints), sigma=np.std(bin_midpoints))
+    m = Minuit(least_squares, amplitude=1, mean=np.mean(bin_midpoints), sigma=np.std(bin_midpoints))
     m.migrad()
     return m.values["amplitude"], m.values["mean"], m.values["sigma"], m.fval / (len(bin_midpoints) - 3), bin_midpoints, bin_counts - gaussian(bin_midpoints, m.values["amplitude"], m.values["mean"], m.values["sigma"])
