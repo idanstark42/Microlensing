@@ -9,7 +9,7 @@ from src.plotting import plot_chi_squared_map_gridmap, plot_chi_squared_map_cont
 import numpy as np
 from src.ogle import Event
 from src.utils import Value, I_t
-from src.settings import YEAR, ID, BOOTSTRAP_SAMPLES, MIN_DATA_POINTS, TIME_WINDOW
+from src.settings import YEAR, ID, BOOTSTRAP_SAMPLES, MIN_DATA_POINTS, TIME_WINDOW, UNITS
 
 
 def part_1(graphs=True):
@@ -54,11 +54,11 @@ def part_1(graphs=True):
     return
 
   plot_data_and_parabola(data, parabola_prediction)
-  plot_residuals(parabola_prediction['time'], parabola_prediction['residuals'])
-  # for field in FIELDS:
-  #   plot_histogram_and_gaussian([parabola_prediction[field].value for parabola_prediction in bootstrap_predictions],
-  #                 field, lambda x: gaussian(x, *gaussians[field][:3]))
-  #   plot_residuals(gaussians[field][4], gaussians[field][5], title=f'{field} residuals', xlabel=field)
+  plot_residuals([point['t'] for point in data], parabola_prediction['residuals'])
+  for field in FIELDS:
+    plot_histogram_and_gaussian([parabola_prediction[field].value for parabola_prediction in bootstrap_predictions],
+                  field, lambda x: gaussian(x, *gaussians[field][:3]), UNITS[field])
+    plot_residuals(gaussians[field][4], gaussians[field][5], title=f'{field} residuals', xlabel=field + f' [{UNITS[field]}]')
 
 
 def part_2(graphs=True):
@@ -151,9 +151,9 @@ def part_3(graphs=True):
 
   plot_full_fit(data, lambda t: get_fit(t, best_values))
   corner_plot(chi2_map, dimensions)
-  # min_ind = np.argmin(np.array([chi2_map[idx]['chi2'] for idx, _ in np.ndenumerate(chi2_map)]))
-  # min_key = list(np.ndenumerate(chi2_map))[min_ind][0]
-  # plot_chi_squared_map_contour(chi2_map, dimensions, variables=['umin', 'Tmax'], const_indices=min_key, ax=None, dof=4)
+  min_ind = np.argmin(np.array([chi2_map[idx]['chi2'] for idx, _ in np.ndenumerate(chi2_map)]))
+  min_key = list(np.ndenumerate(chi2_map))[min_ind][0]
+  plot_chi_squared_map_contour(chi2_map, dimensions, variables=['umin', 'Tmax'], const_indices=min_key, ax=None, dof=4)
 
 
 if __name__ == '__main__':

@@ -27,7 +27,7 @@ def plot_data(data):
     plt.ylabel('I/I0')
     plt.show()
 
-def plot_residuals(x, residuals, title="Residuals", xlabel="t[day]"):
+def plot_residuals(x, residuals, title="Residuals", xlabel="t [days]"):
     plt.scatter(x, residuals)
     plt.title(title)
     plt.xlabel(xlabel)
@@ -50,12 +50,13 @@ def plot_data_and_parabola(data, prediction, title="Data and Parabola"):
     plt.axvline(max_time + tau / 2, color='blue', linestyle='--')
     plt.axvline(max_time - tau / 2, color='blue', linestyle='--')
     plt.title(title)
-    plt.xlabel('t[years]')
+    plt.xlabel('t [days]')
     plt.ylabel('I/I0')
+    plt.ylim(min(I) - 0.1, max(I) + 0.1)
     plt.show()
 
 
-def plot_histogram_and_gaussian(samples, name, gaussian):
+def plot_histogram_and_gaussian(samples, name, gaussian, units):
     plt.hist(samples, bins=BINS, alpha=0.6, edgecolor='black', density=True)
     x = np.linspace(min(samples), max(samples), 1000)
     y = gaussian(x)
@@ -63,8 +64,8 @@ def plot_histogram_and_gaussian(samples, name, gaussian):
     plt.axvline(mean, color='blue', linestyle='--', label=f'Mean: {mean:.2f}')
     plt.plot(x, y, label="Gaussian")
     plt.title(f"{name} Histogram")
-    plt.xlabel(name)
-    plt.ylabel('# of samples')
+    plt.xlabel(name + (f' [{units}]' if units else ''))
+    plt.ylabel('Probability Density')
     plt.show()
 
 
@@ -77,7 +78,7 @@ def plot_full_fit(data, fit):
     x = np.linspace(min(time), max(time))
     y = fit(x)
     plt.title("I(t)/I* Fit")
-    plt.xlabel('t[day]')
+    plt.xlabel('t [days]')
     plt.ylabel('I/I0')
     plt.plot(x, y, label="Fit")
     plt.show()
