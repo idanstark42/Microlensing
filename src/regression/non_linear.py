@@ -8,15 +8,17 @@ from src.utils import Value
 # dimensions: dictionary of dimensions, each dimension is a tuple of (center, width, resolution), the key is the name
 # of the variable
 
-def generate_chi_squared_nd_map(dimensions, data, get_fit, dof):
+def generate_chi_squared_nd_map(dimensions, data, get_fit, dof, use_bar=True):
   time = np.array(list(point['t'] for point in data))
   values = generate_values_nd(dimensions)
   it = np.nditer(values, flags=['multi_index', 'refs_ok'])
-  bar = IncrementalBar('Calculating chi squared', max=values.size, suffix='%(percent)d%%')
+  if use_bar:
+    bar = IncrementalBar('Calculating chi squared', max=values.size, suffix='%(percent)d%%')
   for _ in it:
     fit = get_fit(time, values[it.multi_index])
     values[it.multi_index]['chi2'] = chi_squared_reduced(data, fit, dof)
-    bar.next()
+    if use_bar:
+      bar.next()
 
   min_ind = np.argmin(np.array([values[idx]['chi2'] for idx, _ in np.ndenumerate(values)]))
   min_key = list(np.ndenumerate(values))[min_ind][0]
@@ -46,6 +48,8 @@ def generate_chi_squared_nd_map(dimensions, data, get_fit, dof):
 
   params = {key: Value(values[min_key][key], get_error(key)) for key in dimensions.keys()}
   params['chi2'] = min_chi2
+  if use_bar:
+    bar.finish()
   return values, params
 
 

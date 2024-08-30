@@ -15,6 +15,7 @@ class Event:
     # postprocessing
     self.normalize_time()
     self.find_ground()
+    self.renormalize_I()
 
   def download_data(self):
     data_str = requests.get(f"https://www.astrouw.edu.pl/ogle/ogle4/ews/{self.year}/{self.id}/phot.dat").text
@@ -43,9 +44,14 @@ class Event:
     self.metadata['Tmax'].value -= self.time_shift
 
   def find_ground(self):
-    # take the all I values that are in the bottom 10% of the data, and take the average of them
-    bottom_10 = sorted([datum['I'].value for datum in self.data])[:int(len(self.data) / 10)]
-    self.metadata['I*'] = Value(sum(bottom_10) / len(bottom_10), 0)
+    # take the all I values that are not near the peak
+    bottom = [datum['I'].value for datum in self.data if abs(datum['t'] - self.metadata['Tmax'].value) > 100]
+    self.metadata['I*'] = Value(sum(bottom) / len(bottom), 0)
+
+  def renormalize_I(self):
+    for datum in self.data:
+      datum['I'].value /= self.metadata['I*'].value
+      datum['I'].error /= self.metadata['I*'].value
 
   def __str__(self):
     return f"{self.year} {self.id}" + '\n\n' + '\n'.join([key + ":\t"  + str(value) for key, value in self.metadata.items()])

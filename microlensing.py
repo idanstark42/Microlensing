@@ -73,18 +73,17 @@ def part_2(graphs=True):
   data = event.data
   umin_p, tmax_p = parabola_prediction['umin'].value, parabola_prediction['Tmax'].value
   get_fit = lambda t, parameters: I_t(t, parameters['umin'], parameters['Tmax'], event.metadata['tau'].value,
-                    event.metadata['fbl'].value, event.metadata['I*'].value)
+                    event.metadata['fbl'].value)
   dimensions = {"umin": (umin_p, 0.03, 100), "Tmax": (tmax_p, 1, 1)}
   chi2_map, best_params = generate_chi_squared_nd_map(dimensions, data, get_fit, 2)
 
   print('3. Bootstrapping...')
-  bootstrap_predictions = bootstrap(data, lambda data: generate_chi_squared_nd_map(dimensions, data, get_fit, 2)[1],
+  bootstrap_predictions = bootstrap(data, lambda data: generate_chi_squared_nd_map(dimensions, data, get_fit, 2, use_bar=False)[1],
                     BOOTSTRAP_SAMPLES)
 
   FIELDS = ['umin', 'Tmax']
 
-  gaussians = {field: fit_histogram_gaussian([prediction[field].value for prediction in bootstrap_predictions]) for
-         field in FIELDS}
+  gaussians = {field: fit_histogram_gaussian([prediction[field].value for prediction in bootstrap_predictions]) for field in FIELDS}
   gaussian_predictions = {key: Value(gaussians[key][1], gaussians[key][2]) for key in gaussians}
 
   print('4. Done')
@@ -97,26 +96,22 @@ def part_2(graphs=True):
     parabola_prediction[key],
     gaussian_predictions[key],
     abs(best_params[key].value - event.metadata[key].value) / event.metadata[key].value,
-    gaussians[key][0],
-    gaussians[key][3]
+    gaussians[key][3],
+    gaussians[key][0]
   ] for key in FIELDS],
-    headers=['Parameter', 'OGLE', 'Best', 'Parabola', 'Difference', 'Gaussian amplitude', 'Gaussian chi^2']))
+    headers=['Parameter', 'OGLE', 'Best', 'Parabola', 'Gaussian', 'Difference', 'Gaussian χ²', 'Gaussian amplitude']))
 
   if not graphs:
     return
 
-  # plot_full_fit(data, lambda t: get_fit(t, {
-  #   key: best_params[key].value if type(best_params[key]) == Value else best_params[key] for key in best_params}))
-  # plot_residuals([data['t'] for data in data], [data['I'].value - get_fit(data['t'], {
-  #   key: best_params[key].value if type(best_params[key]) == Value else best_params[key] for key in best_params}) for data in data])
-  # plot_chi_squared_map_gridmap(chi2_map, dimensions)
-  # plot_chi_squared_map_contour(chi2_map, dimensions)
+  plot_full_fit(data, lambda t: get_fit(t, { key: best_params[key].value if type(best_params[key]) == Value else best_params[key] for key in best_params}))
+  plot_residuals([data['t'] for data in data], [data['I'].value - get_fit(data['t'], { key: best_params[key].value if type(best_params[key]) == Value else best_params[key] for key in best_params}) for data in data])
+  plot_chi_squared_map_gridmap(chi2_map, dimensions)
+  plot_chi_squared_map_contour(chi2_map, dimensions)
 
   for field in FIELDS:
     plot_histogram_and_gaussian([prediction[field].value for prediction in bootstrap_predictions], field, lambda x: gaussian(x, *gaussians[field][:3]))
     plot_residuals(gaussians[field][4], gaussians[field][5], title=f'{field} residuals', xlabel=field)
-
-  breakpoint()
 
 
 def part_3(graphs=True):
@@ -124,8 +119,8 @@ def part_3(graphs=True):
   print('--- part 3 ---')
   event = Event(YEAR, ID)
   data = event.data
-  umin, Tmax, fbl, tau, I_min = event.metadata['umin'].value, event.metadata['Tmax'].value, event.metadata[
-    'fbl'].value, event.metadata['tau'].value, event.metadata['I*'].value
+  umin, Tmax, fbl, tau = event.metadata['umin'].value, event.metadata['Tmax'].value, event.metadata[
+    'fbl'].value, event.metadata['tau'].value
   dimensions = {
     "umin": (umin, min(0.3, 2 * (1 - umin), 2 * umin), 20),
     "Tmax": (Tmax, 50, 20),
@@ -136,8 +131,7 @@ def part_3(graphs=True):
   print('dimensions', dimensions)
 
   print('1. Generating chi squared map...')
-  get_fit = lambda t, parameters: I_t(t, parameters['umin'], parameters['Tmax'], parameters['tau'], parameters['fbl'],
-                    I_min)
+  get_fit = lambda t, parameters: I_t(t, parameters['umin'], parameters['Tmax'], parameters['tau'], parameters['fbl'])
   chi2_map, best_params = generate_chi_squared_nd_map(dimensions, data, get_fit, 4)
   best_values = { key: best_params[key].value if type(best_params[key]) == Value else best_params[key] for key in best_params }
 

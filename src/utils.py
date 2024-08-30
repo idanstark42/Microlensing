@@ -56,6 +56,6 @@ def mu_t(t, umin, t0, tau):
   u = u_t(t, umin, t0, tau)
   return (u ** 2 + 2) / (u * np.sqrt(u ** 2 + 4))
 
-def I_t(t, umin, t0, tau, fBL, I_min):
+def I_t(t, umin, t0, tau, fBL):
   mu = mu_t(t, umin, t0, tau)
-  return fBL * I_min * mu + (1 - fBL)
+  return fBL * mu + (1 - fBL)
